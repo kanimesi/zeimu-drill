@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>租税法 基準集ドリル</title>
+<style>
+  :root{
+    --bg:#f5f3fa; --surface:#ffffff; --surface-2:#efeaf7; --text:#211a2e; --muted:#6a5f82;
+    --line:#e0d8ee; --accent:#6d28d9; --accent-ink:#ffffff; --accent-soft:#ece4fb;
+    --accent2:#a21caf; --accent2-soft:#f9e7f8; --danger:#b42318; --danger-soft:#fdecea;
+    --ok:#7c3aed; --ok-soft:#efe9fd; --radius:16px; --shadow:0 6px 24px rgba(76,29,149,.09);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#151120; --surface:#1f1930; --surface-2:#2a2142; --text:#edeaf7; --muted:#a79cc4;
+      --line:#382e56; --accent:#a78bfa; --accent-ink:#1d1033; --accent-soft:#2e2154;
+      --accent2:#e879f9; --accent2-soft:#3d1a44; --danger:#ff8a80; --danger-soft:#3a1d1a;
+      --ok:#c4b5fd; --ok-soft:#2a2150; --shadow:0 6px 24px rgba(0,0,0,.4);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:680px;margin:0 auto;padding:16px 16px 40px}
+  .top{padding:6px 2px 4px}
+  .top h1{font-size:23px;line-height:1.25;margin:0;font-weight:800;letter-spacing:.01em}
+  .top .sub{margin:6px 0 0;color:var(--muted);font-size:13.5px;line-height:1.55}
+  .meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .tag{font-size:11.5px;font-weight:700;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 9px;color:var(--muted)}
+  .tag strong{color:var(--text)}
+  .memo{margin-top:12px;border:1px solid color-mix(in srgb, var(--accent2) 30%, var(--line));background:var(--accent2-soft);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.6}
+  .memo strong{color:var(--accent2)}
+
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0 12px}
+  .mode-btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:14px;padding:12px 6px 10px;cursor:pointer;text-align:center}
+  .mode-btn .t{font-size:14.5px;font-weight:800;line-height:1.2}
+  .mode-btn .d{font-size:11px;color:var(--muted);font-weight:600;margin-top:3px;line-height:1.35}
+  .mode-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .mode-btn.active .d{color:color-mix(in srgb, var(--bg) 70%, transparent)}
+  .panel{display:none}
+  .panel.active{display:block}
+
+  /* structure map */
+  .law-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .law-tab{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:800;cursor:pointer}
+  .law-tab.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .map-intro{font-size:13.5px;line-height:1.65;color:var(--muted);margin:0 2px 12px}
+  .map-intro strong{color:var(--text)}
+  .flow{display:grid;gap:0}
+  .block-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 14px 12px;text-align:left;width:100%;appearance:none;color:var(--text);cursor:pointer}
+  .block-head{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+  .block-name{font-size:16.5px;font-weight:800;line-height:1.4}
+  .block-pos{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+  .kind{font-size:11px;font-weight:800;letter-spacing:.03em;padding:4px 8px;border-radius:999px;white-space:nowrap;background:var(--accent-soft);color:var(--accent);border:1px solid color-mix(in srgb, var(--accent) 20%, transparent)}
+  .kind.ex{background:var(--accent2-soft);color:var(--accent2);border-color:color-mix(in srgb, var(--accent2) 25%, transparent)}
+  .kind.sp{background:var(--surface-2);color:var(--text);border-color:var(--line)}
+  .block-why{font-size:13.5px;line-height:1.65;margin-top:8px}
+  .block-more{display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;font-size:13px;line-height:1.65}
+  .block-card.open .block-more{display:block}
+  .block-more dt{font-weight:800;font-size:11px;letter-spacing:.05em;color:var(--muted);margin-top:6px}
+  .block-more dt:first-child{margin-top:0}
+  .block-more dd{margin:2px 0 0}
+  .block-tap{font-size:11.5px;color:var(--muted);margin-top:8px;font-weight:700}
+  .arrow{text-align:center;color:var(--muted);font-size:15px;line-height:1;padding:5px 0;font-weight:800}
+  .arrow small{display:block;font-size:11px;font-weight:600}
+
+  /* drill / common */
+  .stats{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 2px 8px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+  .stats strong{color:var(--text)}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:700;color:var(--text)}
+  .pill.warn{border-color:color-mix(in srgb, var(--accent2) 35%, var(--line));background:var(--accent2-soft)}
+  .track{height:6px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 2px 12px}
+  .fill{height:100%;background:var(--accent);border-radius:999px;transition:width .25s ease;width:0%}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px 16px}
+  .card-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}
+  .badge{font-size:11px;font-weight:800;letter-spacing:.03em;padding:4px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);border:1px solid color-mix(in srgb, var(--accent) 20%, transparent)}
+  .badge.neutral{background:var(--surface-2);color:var(--text);border-color:var(--line)}
+  .id-label{font-size:12px;color:var(--muted);font-weight:600;margin-left:auto}
+  .q-label{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+  .question{font-size:19px;line-height:1.55;font-weight:700;margin:0}
+  .question.small{font-size:17px}
+  .hint{margin-top:10px;font-size:13.5px;color:var(--muted);line-height:1.6}
+  .hint:empty{display:none}
+  .step-q{margin-top:18px}
+  .step-q .q-label{color:var(--accent)}
+  .opt-list{display:grid;gap:8px;margin-top:8px}
+  .opt{appearance:none;border:1.5px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;padding:12px 12px;font-size:15px;font-weight:700;cursor:pointer;text-align:left;line-height:1.45;min-height:50px}
+  .opt small{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
+  .opt:active{transform:scale(.99)}
+  .opt:disabled{cursor:default;opacity:.85}
+  .opt.correct{background:var(--ok-soft);border-color:var(--ok)}
+  .opt.wrong{background:var(--danger-soft);border-color:var(--danger)}
+  .opt.dim{opacity:.45}
+  .feedback{display:none;margin-top:16px;border-top:1px dashed var(--line);padding-top:14px}
+  .feedback.show{display:block}
+  .verdict{font-size:16px;font-weight:800;margin:0 0 6px}
+  .verdict.ok{color:var(--ok)} .verdict.ng{color:var(--danger)}
+  .fb-body{font-size:14.5px;line-height:1.65}
+  .detail-box{margin-top:10px;background:var(--surface-2);border-radius:10px;padding:10px 11px;font-size:13px;line-height:1.65}
+  .detail-box dt{font-weight:800;font-size:11px;letter-spacing:.05em;color:var(--muted);margin-top:6px}
+  .detail-box dt:first-child{margin-top:0}
+  .detail-box dd{margin:2px 0 0}
+  .loc-foot{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.6;border-top:1px dashed var(--line);padding-top:8px}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);padding:13px 10px;border-radius:13px;font-size:14.5px;font-weight:700;cursor:pointer;min-height:50px}
+  .btn.primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .btn.accent{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .btn:active:not(:disabled){transform:scale(.99)}
+  .row-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .btn.small{padding:9px 10px;font-size:13px;min-height:42px;border-radius:999px;flex:1;white-space:nowrap}
+  .btn.small.active{outline:2px solid var(--accent);outline-offset:1px}
+  .weak-btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text)}
+  .weak-btn.on{background:var(--accent2-soft);border-color:var(--accent2);color:var(--accent2)}
+  .done-box{display:none;text-align:center;padding:22px 8px 6px}
+  .done-box.show{display:block}
+  .done-box .big{font-size:20px;font-weight:800;margin:0 0 8px}
+  .done-box p{color:var(--muted);font-size:14px;margin:0 0 14px}
+
+  /* timer */
+  .timer-wrap{display:flex;align-items:center;gap:14px;margin-top:16px;background:var(--surface-2);border-radius:12px;padding:12px 12px}
+  .timer-num{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;min-width:86px;text-align:center}
+  .timer-num.over{color:var(--danger)}
+  .timer-info{font-size:12.5px;color:var(--muted);line-height:1.5;flex:1}
+  .timer-info strong{color:var(--text)}
+  .timer-bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:12px}
+  .timer-bar-fill{height:100%;background:var(--accent);transition:width 1s linear;width:100%}
+  .timer-bar-fill.low{background:var(--danger)}
+
+  /* table */
+  .searchbar{display:flex;gap:8px;margin-bottom:10px}
+  .searchbar input{flex:1;appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;padding:12px 12px;font-size:15px;min-width:0}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:7px 11px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .chip.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .tbl{display:grid;gap:8px}
+  .trow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 12px;cursor:pointer;text-align:left;width:100%;appearance:none;color:var(--text)}
+  .trow .r1{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+  .trow .topic{font-weight:700;font-size:15px;line-height:1.45}
+  .trow .art{font-weight:800;font-size:13px;white-space:nowrap;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 8px}
+  .trow .loc{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+  .trow .expand{display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;font-size:13px;line-height:1.65;cursor:default}
+  .trow.open .expand{display:block}
+  .empty{text-align:center;color:var(--muted);font-size:14px;padding:28px 10px;background:var(--surface);border:1px dashed var(--line);border-radius:12px}
+  .footer{margin-top:18px;color:var(--muted);font-size:12px;line-height:1.65;text-align:center;padding:0 6px}
+  @media (max-width:400px){
+    .question{font-size:17.5px}
+    .mode-btn .t{font-size:13.5px}
+    .timer-num{font-size:26px;min-width:72px}
+  }
+  @media (prefers-reduced-motion: reduce){ .fill,.timer-bar-fill{transition:none} .btn:active,.opt:active{transform:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>租税法 基準集ドリル</h1>
+    <p class="sub">狙いは条文番号を思い出すことではなく、<strong>条文の構造を理解すること</strong>。<br>まず全体の流れ（構造マップ）をつかみ、論点を見たら「計算の流れのどの段階か」「原則か・例外か・特例か」を構造からたどれるようにする訓練です。</p>
+    <div class="meta-row">
+      <span class="tag">基準：<strong>令和8年版</strong>（法令基準日 2026年1月1日）</span>
+      <span class="tag">対象：<strong>法人税・所得税・消費税</strong></span>
+      <span class="tag">進め方：<strong>構造からたどる</strong></span>
+    </div>
+  </header>
+
+  <div class="memo" role="note"><strong>例外メモ（短く）：</strong>交際費（租税特別措置法 第61条の4）、政令・省令で定める細目、別表は基準集に載っていません。当たったら開かず、問題文の与条件に戻ってください。この1点だけ押さえれば、残りは「載っている前提」で構造からたどることに集中できます。</div>
+
+  <nav class="modes" aria-label="モード切り替え">
+    <button class="mode-btn active" type="button" data-mode="map"><div class="t">① 構造マップ</div><div class="d">3税法の全体の流れ<br>ブロックごとに理由を読む</div></button>
+    <button class="mode-btn" type="button" data-mode="drill"><div class="t">② 構造ドリル</div><div class="d">どのブロックの話か<br>原則・例外・特例をたどる</div></button>
+    <button class="mode-btn" type="button" data-mode="search"><div class="t">③ 検索ドリル</div><div class="d">紙で探す＋タイマー<br>構造に沿って降りる</div></button>
+    <button class="mode-btn" type="button" data-mode="table"><div class="t">④ 対応表</div><div class="d">論点 → 条文の早見<br>検索つき（法人税）</div></button>
+  </nav>
+
+  <!-- ============ MODE 1: STRUCTURE MAP ============ -->
+  <section class="panel active" id="panel-map">
+    <div class="law-tabs" id="mapLawTabs">
+      <button class="law-tab active" type="button" data-law="h">法人税法</button>
+      <button class="law-tab" type="button" data-law="s">所得税法</button>
+      <button class="law-tab" type="button" data-law="c">消費税法</button>
+    </div>
+    <p class="map-intro" id="mapIntro"></p>
+    <div class="flow" id="mapFlow"></div>
+    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin:12px 2px 0">読み方のコツ：各ブロックは「なぜこの位置にあるか」を先に読んでください。原則のブロックが先に置かれ、例外・制限・特例はその後にぶら下がる——この並び自体が、紙の基準集を降りていく順番になっています。</p>
+  </section>
+
+  <!-- ============ MODE 2: STRUCTURE DRILL ============ -->
+  <section class="panel" id="panel-drill">
+    <div class="law-tabs" id="drillLawTabs">
+      <button class="law-tab active" type="button" data-law="all">すべて</button>
+      <button class="law-tab" type="button" data-law="h">法人税法</button>
+      <button class="law-tab" type="button" data-law="s">所得税法</button>
+      <button class="law-tab" type="button" data-law="c">消費税法</button>
+    </div>
+    <div class="stats">
+      <span id="drillProgress"><strong>1</strong> / 47 問目</span>
+      <span style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="pill">構造でたどれた <span id="drillOk">0</span></span>
+        <span class="pill">ずれた <span id="drillNg">0</span></span>
+        <span class="pill warn">★ 苦手 <span id="drillWeakCount">0</span></span>
+      </span>
+    </div>
+    <div class="track"><div class="fill" id="drillFill"></div></div>
+
+    <div class="card">
+      <div id="drillBody">
+        <div class="card-meta">
+          <span class="badge" id="drillLawBadge">法人税法</span>
+          <span class="badge neutral">構造ドリル</span>
+          <span class="id-label" id="drillId"></span>
+        </div>
+        <div class="q-label">論点・状況</div>
+        <p class="question" id="drillQuestion"></p>
+        <p class="hint" id="drillSign"></p>
+
+        <div class="step-q" id="drillStep1">
+          <div class="q-label">問い1 — 構造マップ上のどのブロックの話か？</div>
+          <div class="opt-list" id="drillBlockOpts"></div>
+        </div>
+        <div class="step-q" id="drillStep2" style="display:none">
+          <div class="q-label">問い2 — そのブロックの中での性格は？</div>
+          <div class="opt-list" id="drillKindOpts"></div>
+        </div>
+
+        <div class="feedback" id="drillFeedback">
+          <p class="verdict" id="drillVerdict"></p>
+          <div class="fb-body" id="drillFbBody"></div>
+          <dl class="detail-box" id="drillDetail"></dl>
+          <p class="loc-foot" id="drillLocFoot"></p>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="weak-btn" type="button" id="drillWeakBtn">☆ 苦手にマーク</button>
+            <span style="font-size:12px;color:var(--muted)">どちらかでずれた論点は自動で苦手に入ります。記録はこのセッション内だけ保持されます</span>
+          </div>
+        </div>
+      </div>
+      <div class="done-box" id="drillDone">
+        <p class="big">構造ドリル、おつかれさま</p>
+        <p id="drillDoneText"></p>
+        <button class="btn accent" type="button" id="drillRestart" style="width:100%">もう一度シャッフルして始める</button>
+        <button class="btn" type="button" id="drillWeakOnlyBtn" style="width:100%;margin-top:8px">苦手だけ復習する</button>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" type="button" id="drillPrev">← 前へ</button>
+      <button class="btn primary" type="button" id="drillNext">次へ →</button>
+    </div>
+    <div class="row-btns">
+      <button class="btn small" type="button" id="drillShuffleBtn">シャッフル OFF</button>
+      <button class="btn small" type="button" id="drillFilterWeakBtn">苦手のみ表示</button>
+      <button class="btn small" type="button" id="drillResetBtn">リセット</button>
+    </div>
+  </section>
+
+  <!-- ============ MODE 3: SEARCH ============ -->
+  <section class="panel" id="panel-search">
+    <div class="stats">
+      <span id="searchProgress"><strong>1</strong> / 12 問目</span>
+      <span style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="pill">制限内 <span id="searchInTime">0</span></span>
+        <span class="pill warn">★ 苦手 <span id="searchWeakCount">0</span></span>
+      </span>
+    </div>
+    <div class="track"><div class="fill" id="searchFill"></div></div>
+
+    <div class="card">
+      <div id="searchBody">
+        <div class="card-meta">
+          <span class="badge" id="searchBadge">検索ドリル</span>
+          <span class="badge neutral" id="searchTargetBadge">目標 60秒</span>
+          <span class="id-label" id="searchId"></span>
+        </div>
+        <div class="q-label">状況 — まず構造で当たりを付け、紙の基準集でブロックから降りていく</div>
+        <p class="question small" id="searchQuestion"></p>
+
+        <div class="timer-wrap">
+          <div class="timer-num" id="timerNum">0:00</div>
+          <div class="timer-info" id="timerInfo"><strong>紙の基準集を用意してスタート。</strong><br>いきなり条文を探さず、法律 → 編 → 章 → 節 → 款 と構造を1段ずつ降りること。</div>
+        </div>
+        <div class="timer-bar"><div class="timer-bar-fill" id="timerBarFill"></div></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+          <button class="btn accent" type="button" id="timerStartBtn">▶ スタート</button>
+          <button class="btn primary" type="button" id="foundBtn" disabled>✓ たどり着いた — 降り方を見る</button>
+        </div>
+        <button class="btn" type="button" id="giveupBtn" style="width:100%;margin-top:8px" disabled>あきらめる — 降り方を見る</button>
+
+        <div class="feedback" id="searchFeedback">
+          <p class="verdict" id="searchVerdict"></p>
+          <div class="fb-body" id="searchFbBody"></div>
+          <dl class="detail-box" id="searchDetail"></dl>
+          <p class="loc-foot" id="searchLocFoot"></p>
+          <div style="margin-top:12px"><button class="weak-btn" type="button" id="searchWeakBtn">☆ 苦手にマーク</button></div>
+        </div>
+      </div>
+      <div class="done-box" id="searchDone">
+        <p class="big">検索ドリル、おつかれさま</p>
+        <p id="searchDoneText"></p>
+        <button class="btn accent" type="button" id="searchRestart" style="width:100%">もう一度シャッフルして始める</button>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" type="button" id="searchPrev">← 前へ</button>
+      <button class="btn primary" type="button" id="searchNext">次へ →</button>
+    </div>
+    <div class="row-btns">
+      <button class="btn small" type="button" id="searchShuffleBtn">シャッフル OFF</button>
+      <button class="btn small" type="button" id="searchResetBtn">リセット</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin:12px 2px 0">制限時間は対応表の目標時間（30秒／60秒／2分）に合わせています。時間を超えたら手を止め、構造のどの段（ブロック／節／款）でずれたかを確認してください。</p>
+  </section>
+
+  <!-- ============ MODE 4: TABLE ============ -->
+  <section class="panel" id="panel-table">
+    <div class="searchbar">
+      <input type="search" id="tableSearch" placeholder="論点・条文・キーワードで検索（例：配当 / 52条 / 圧縮）" autocomplete="off" />
+    </div>
+    <div class="filters" id="tableFilters">
+      <button class="chip active" type="button" data-f="all">すべて（31）</button>
+      <button class="chip" type="button" data-f="s1">第1節 所得計算</button>
+      <button class="chip" type="button" data-f="s2">第2節 税額計算</button>
+      <button class="chip" type="button" data-f="s3">第3節 申告・還付</button>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin:0 2px 10px"><span id="tableCount"></span> 件 — 行をタップで詳細（所在・関連条文・委任・ルート）</div>
+    <div class="tbl" id="tableList"></div>
+    <div class="empty" id="tableEmpty" style="display:none">該当する論点がありません。検索語を変えてみてください。</div>
+  </section>
+
+  <p class="footer">
+    データ出典：論点対応表と検索ルート（法人税 02・03／所得税 04／消費税 05、令和8年版・e-Govで条文番号と所在を確認済み）。構造マップのブロック分けと「なぜこの位置か」の説明は、その対応表の全体マップをもとに整理したものです。条文の細部の文言は手元の紙（令和8年版）が正です。<br>
+    対応表ビューは法人税分を収録。構造マップと構造ドリルは3税法分です。
+  </p>
+</div>
+<script>
+function shuffle(arr){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=a[i]; a[i]=a[j]; a[j]=tmp; } return a; }
+function fmtTime(sec){ var m=Math.floor(sec/60), s=sec%60; return m+":"+(s<10?"0":"")+s; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+var LAW_NAME={h:"法人税法", s:"所得税法", c:"消費税法"};
+var KIND_CLASS={"原則":"", "例外・制限":"ex", "特例":"sp"};
+
+/* ================================================================
+   構造マップ — 02〜05 の全体マップをもとに、計算と手続の流れで整理
+   ================================================================ */
+var MAPS={
+h:{ intro:"法人税法の芯は第2編です。流れは <strong>[入口] 課税標準と計算の通則 → [計算1-a] 益金 → [計算1-b] 損金（入口 → 制限・特例 → 残論点）→ [計算2] 税額計算 → [出口] 申告・納付・還付</strong>。所得計算の中では「原則のブロックが先、絞りや特例は後」という並びが徹底しています。",
+ blocks:[
+  {id:"h_in", name:"入口 — 課税標準と計算の通則", pos:"第2編 第1章 第1節 第1〜2款（第21条・第22条）", kind:"原則", why:"すべての計算はここから始まります。課税標準は所得金額であり、所得は「益金 − 損金」で計算する、という骨格と、資本等取引を除外する線引きを最初に置くことで、後の各論はすべてこの枠の具体化・例外として読めるようになっています。", link:"前：なし（出発点）／ 後：この通則を受けて、まず益金のブロックが具体化されます。", pts:"第21条（課税標準）、第22条（計算の通則：益金−損金の構造、公正妥当な会計処理基準、資本等取引の除外）"},
+  {id:"h_eki", name:"計算1-a 益金 — 収益を数える", pos:"第1節 第3款（第22条の2〜第28条）", kind:"原則", why:"損金より先に益金が置かれるのは、課税所得が「収益から費用を引く」構造だからです。原則は『収益は益金に入る』。そのうえで、受取配当や評価益のような不算入（入れないもの）が、同じ益金ブロックの中に目を分けて並びます——例外は原則と同じ場所に置くのがこの法律の作法です。", link:"前：通則（第22条2項の益金の定義）／ 後：数えた益金から、損金のブロックで費用を引きます。", pts:"第22条の2（収益の額・計上時期）、第23条（受取配当の益金不算入）、第24条（みなし配当）、第25条（評価益の不算入）、第26条（還付金の益金算入）"},
+  {id:"h_son", name:"計算1-b 損金・入口 — 費用を引く（本体）", pos:"第1節 第4款 第1〜2目・第7目の2 ほか（第29条〜）", kind:"原則", why:"売上原価・償却・評価損など、費用計算の本体がここです。資産の種類ごとに目が並ぶ（棚卸資産→減価償却→繰延資産）のは、会計の計算手順そのままの順番だからです。評価損が『原則は損金に入れない』形で置かれる点は、益金側の評価益不算入と対になっています。", link:"前：益金ブロックで数えた収益に対応する原価・費用／ 後：本体で引いたあと、次のブロックで「引きすぎ」を絞ります。", pts:"第29条（棚卸資産）、第31条（減価償却）、第32条（繰延資産）、第33条（評価損は原則不算入）、第53条（賃貸借取引の支払金額）"},
+  {id:"h_lim", name:"計算1-b 損金の制限・調整 — 引きすぎを絞る", pos:"第1節 第4款 第3〜5目・第7目の4（第34条〜第41条・第55条）", kind:"例外・制限", why:"本体の後ろに置かれる制限の塊です。役員給与・寄附金のように『経理したからといって無条件には引けない』もの、法人税額のように『税金そのものは引けない』ものを、ここでまとめて絞ります。本体の原則を先に置き、制限を後に重ねる——この順序が答案の検討順序（まず損金性、次に制限）そのものになっています。", link:"前：損金の本体でいったん計上／ 後：制限を通過した金額が、特例の調整を受けることがあります。", pts:"第34条（役員給与）、第37条（寄附金）、第38条（法人税額等の損金不算入）、第55条（不正行為等に係る費用）"},
+  {id:"h_spec", name:"計算1-b 特例・残論点の塊 — 圧縮・引当・繰越・再編・通算", pos:"第1節 第4款 第6〜8目と節の後半（第42条〜第64条の12）", kind:"特例", why:"原則どおりでは困る場面への手当てが、節の後半に塊で置かれます。圧縮記帳（課税の繰延べで投資を止めない）、引当金（将来の損失への備え）、欠損金の繰越（年度間の平準化）、組織再編・グループ通算（企業グループとしての中立性）——いずれも『原則の計算をした後で』効いてくる調整なので、本体と制限の後に置かれる必然があります。節の後半に残る論点（有価証券の譲渡損益・完全支配関係法人間の損益の繰延べ・組織再編成・リース取引・グループ通算）もこの塊の後段に並び、税額計算へ渡します。", link:"前：制限まで終えた所得計算／ 後：調整後の所得金額が税額計算の入口になります。", pts:"第42条〜（圧縮記帳）、第52条（貸倒引当金）、第57条（欠損金の繰越）、第61条の2（有価証券の譲渡損益）、第61条の11（完全支配関係法人間の損益の繰延べ）、第62条台（組織再編成）、第64条の2（リース取引）、第64条の5〜（グループ通算）"},
+  {id:"h_tax", name:"計算2 税額計算 — 率を掛け、控除する", pos:"第1章 第2節（第66条〜第72条）", kind:"原則", why:"所得計算と節を分けて置かれます。『いくら儲けたか』と『いくら課税するか』は別の工程だからです。中身も2段構えで、第1款で税率を掛け、第2款で所得税額控除・外国税額控除（二重課税の調整）を引く、という順番になっています。", link:"前：所得計算で確定した所得金額／ 後：確定した税額を申告・納付のブロックで手続に移します。", pts:"第66条（税率 23.2％・中小法人の軽減 19％）、第68条（所得税額控除）、第69条（外国税額控除）"},
+  {id:"h_proc", name:"出口 申告・納付・還付 — 手続で締める", pos:"第1章 第3節（第74条〜第80条）", kind:"原則", why:"計算の最後は手続です。確定申告で金額を確定させ、納付し、還付があれば受ける。欠損金の繰戻し還付が『繰越（第57条・所得計算の中）』と別の節に置かれるのは、繰越が計算の話、繰戻しが還付手続の話だから——置き場所が性格を表しています。", link:"前：税額計算で確定した税額／ 後：なし（手続で完結）。", pts:"第74条（確定申告）、第80条（欠損金の繰戻しによる還付）"}
+ ]},
+s:{ intro:"所得税法は、まず <strong>編で場面を分ける</strong>のが構造の肝です。居住者の計算＝第2編／非居住者・法人＝第3編／支払者側の天引き（源泉徴収）＝第4編。第2編の中は <strong>各種所得 → 通則 → 損益通算 → 所得控除 → 税額計算 → 申告</strong> と、第21条が示す計算の順序どおりに並んでいます。",
+ blocks:[
+  {id:"s_in", name:"入口 — 誰に・何に課税するか", pos:"第1編 総則（第5条・第7条・第9条・第12条）", kind:"原則", why:"計算に入る前に、納税義務者（居住者・非居住者・法人）、課税される所得の範囲、非課税所得、所得の帰属（実質所得者）を決めるブロックです。入口を第1編の総則にまとめることで、第2編以降は『居住者の計算』に純化できます。", link:"前：なし／ 後：入口を通過した所得が、第2編で種類ごとに計算されます。", pts:"第5条（納税義務者）、第7条（課税所得の範囲）、第9条（非課税所得）、第12条（実質所得者課税の原則）"},
+  {id:"s_kakushu", name:"各種所得 — 種類ごとに金額を出す", pos:"第2編 第2章 第2節 第1款（第23条〜第35条）", kind:"原則", why:"所得税の出発点は『所得を10種類に分け、種類ごとに金額を出す』ことです。利子から雑まで条文が種類順に並ぶのは、分類がそのまま計算方法の選択になるからです。分類を間違えると後の通算・控除の扱いまで変わるため、計算ブロックの先頭に置かれます。", link:"前：入口で課税対象と確定／ 後：種類ごとの金額を、通則で横断的に調整します。", pts:"第23条（利子所得）〜第35条（雑所得）。給与は第28条、退職は第30条、事業は第27条"},
+  {id:"s_tsu", name:"計算の通則・収入金額・必要経費", pos:"第2節 第2款〜第4款（第36条〜第57条の2）", kind:"原則", why:"種類ごとの計算の後ろに、全種類に共通する物差しが置かれます。収入金額とは何か（第36条）、必要経費とは何か（第37条）、という横断ルールを後ろにまとめることで、各種所得の条文を短く保つ設計です。資産の譲渡の特例や帰属時期の特例もこの後段に続きます。", link:"前：各種所得の金額／ 後：横断ルールを通した金額同士で損益通算を行います。", pts:"第36条（収入金額）、第37条（必要経費）、第45条（家事費等の必要経費不算入）ほか"},
+  {id:"s_soneki", name:"損益通算・損失の繰越", pos:"第2章 第3節（第69条〜第71条）", kind:"原則", why:"種類ごとにバラバラに出した金額を、ここで初めて合計の世界にまとめます。黒字と赤字を通算し、引ききれない損失は翌年以降へ繰り越す——『分けて計算し、ここで寄せる』という所得税の設計が、節の分かれ目に表れています。繰越は青色申告と要件で結びつきます。", link:"前：通則を通した各種所得の金額／ 後：通算後の総所得金額等から所得控除を引きます。", pts:"第69条（損益通算）、第70条（純損失の繰越控除）、第71条（雑損失の繰越控除）"},
+  {id:"s_kojo", name:"所得控除 — 人の事情を差し引く", pos:"第2章 第4節（第72条〜第87条）", kind:"原則", why:"通算の後、税率を掛ける前に置かれる控除の塊です。社会保険料・医療費・扶養など『その人の事情』を課税標準から差し引く工程で、金額計算（いくら儲けたか）とは性格が違うため、独立した節に固まっています。第72条〜第87条に密集しているのが目印です。", link:"前：損益通算後の金額／ 後：控除後の課税所得金額に税率を掛けます。", pts:"第74条（社会保険料控除）、第73条（医療費控除）、第84条（扶養控除）など第72条〜第87条"},
+  {id:"s_zeigaku", name:"税額計算 — 税率と税額控除", pos:"第2編 第3章（第89条〜第95条の2）", kind:"原則", why:"所得計算の章（第2章）から章を変えて置かれます。法人税と同じく『金額の計算』と『税額の計算』を分ける設計です。第1節で超過累進税率（第89条）と平均課税（第90条）、第2節で配当控除・外国税額控除と、二重課税や負担の平準化の調整が続きます。", link:"前：所得控除後の課税所得金額／ 後：源泉徴収された税額との精算は申告の場面で行います。", pts:"第89条（税率）、第90条（平均課税）、第92条（配当控除）、第95条（外国税額控除）"},
+  {id:"s_shinkoku", name:"申告・納付・還付", pos:"第2編 第5章（第104条〜・第120条〜・第143条〜）", kind:"原則", why:"計算の締めは手続です。予定納税（先払い）→確定申告（翌年2月16日〜3月15日）という時間の流れ順に節が並び、青色申告の承認・帳簿も同じ章に置かれます。青色申告特別控除の金額規定が措置法側にある点は例外メモの話で、手続の本体はこの章です。", link:"前：税額計算で確定した税額／ 後：支払者側の源泉徴収（第4編）とここで精算がつながります。", pts:"第104条（予定納税）、第120条（確定申告）、第143条（青色申告）"},
+  {id:"s_gensen", name:"源泉徴収 — 計算とは別のライン（第4編）", pos:"第4編（第181条〜第223条）", kind:"原則", why:"最大の取り違えポイントです。天引きの話は計算の編（第2編）にはなく、第4編に丸ごと飛びます。支払者の義務として独立させる設計だからで、給与（第2章）・退職（第3章）・公的年金（第3章の2）・報酬（第4章）と支払の種類で章が分かれ、年末調整は給与の章の第2節に置かれます。", link:"前：本来の計算ライン（第2編）とは並行／ 後：確定申告で源泉徴収税額と精算されます。", pts:"第183条（給与の源泉徴収）、第190条（年末調整）、第204条（報酬・料金等の源泉徴収）"}
+ ]},
+c:{ intro:"消費税法は編ではなく<strong>章立て</strong>で、配付範囲は第4章（第56条）までとコンパクトです。流れは <strong>課税の対象 → 非課税・免税（例外）→ 免除 → 課税標準・税率 → 仕入控除 → 調整・簡易課税 → 申告</strong>。取引に課税し、仕入分を引いて二重課税を防ぐ、という消費税の仕組みそのままの順番です。",
+ blocks:[
+  {id:"c_taisho", name:"課税の対象・入口", pos:"第1章 総則（第2条・第4条・第5条）", kind:"原則", why:"まず『何に課税するか』です。事業者が国内で行う資産の譲渡等と、輸入取引（保税地域からの引取り）が課税の対象で、定義（第2条）と課税の対象（第4条）が総則の先頭に置かれます。国内外判定も第4条の中にあり、入口で取引の性格を決めてから先へ進む設計です。", link:"前：なし／ 後：課税対象のうち、政策的に課税しないものが次の例外ブロックで外されます。", pts:"第2条（定義）、第4条（課税の対象・国内外判定・みなし譲渡）、第5条（納税義務者）"},
+  {id:"c_hikazei", name:"非課税・輸出免税 — 課税しない取引", pos:"第1章（第6条・第7条）", kind:"例外・制限", why:"課税対象のすぐ後ろに、課税しない取引の例外が置かれます。非課税（土地・医療・教育など、消費という性格になじまないもの）と輸出免税（消費地で課税する原則から、輸出はゼロにするもの）は、どちらも『原則は課税』を前提に一部を外す規定なので、入口ブロックにくっついています。非課税リスト自体は別表第二（配付外）にある点に注意。", link:"前：課税の対象で拾った取引／ 後：例外を外した残りについて、事業者側の免除を判定します。", pts:"第6条（非課税）、第7条（輸出免税）、第8条（輸出物品販売場）"},
+  {id:"c_menjo", name:"納税義務の免除とその特例", pos:"第1章（第9条〜第12条の4）", kind:"例外・制限", why:"取引ではなく『事業者』に着目した例外です。小規模事業者は事務負担に配慮して納税義務そのものを免除する（第9条、基準期間の課税売上高1,000万円以下）。免除のすぐ後ろに、特定期間特例・相続や合併の特例・新設法人の特例が枝番でぶら下がるのは、『免除の原則形＋抜け道をふさぐ特例』の塊として設計されているからです。", link:"前：課税対象・非課税の判定／ 後：課税事業者であることが決まれば、課税標準の計算に入ります。", pts:"第9条（小規模事業者の免除・課税事業者の選択）、第9条の2（特定期間特例）、第12条の2（新設法人の特例）、第12条の4（高額特定資産の特例）"},
+  {id:"c_hyojun", name:"課税標準・税率 — 売上げ側の金額", pos:"第2章（第28条・第29条）", kind:"原則", why:"章を変えて、条文わずか2条で置かれる計算の入口です。課税標準は対価の額（第28条、消費税額を含まない）、税率は標準7.8％・軽減6.24％（第29条）。入口が短いのは、消費税の計算の重心が次の『仕入控除』にあるからで、売上げ側はここで金額を確定させて終わります。", link:"前：課税事業者・課税対象の確定／ 後：売上げの税額から仕入控除を引きます。", pts:"第28条（課税標準：対価の額）、第29条（税率）"},
+  {id:"c_shiire", name:"仕入控除 — 消費税の心臓部", pos:"第3章（第30条・第31条）", kind:"原則", why:"消費税が『多段階でも二重課税にならない』仕組みの中核です。売上げで預かった税額から、仕入れで支払った税額を引く（第30条）。章の先頭に原則を置き、保存要件（帳簿・適格請求書）も同じ条文の中に組み込まれています。控除側はこの第30条で組み立てるのが本番の形です（登録・交付義務の本体は第5章で配付外）。", link:"前：課税標準・税率で出した売上げの税額／ 後：控除しきれない・しすぎた分は次の調整ブロックで処理します。", pts:"第30条（仕入控除・95％ルール・保存要件）、第31条（非課税資産の輸出のみなし）"},
+  {id:"c_chosei", name:"調整・返還等・簡易課税", pos:"第3章（第32条〜第39条・第37条）", kind:"特例", why:"仕入控除の原則計算をした『後』の手直しが集まるブロックです。返還等・固定資産の用途転用・棚卸資産の調整、貸倒れの控除は、いずれも事情が後から変わった場合の調整。簡易課税（第37条）は原則計算そのものを簡素なみなし計算に置き換える特例として、同じ章の後段に置かれます。", link:"前：仕入控除の原則計算／ 後：調整後の税額を申告のブロックで確定させます。", pts:"第32条（返還等の調整）、第33条〜第35条（調整対象固定資産）、第36条（棚卸資産の調整）、第37条（簡易課税）、第38条（売上げの返還等）、第39条（貸倒れ）"},
+  {id:"c_shinkoku", name:"申告・納付・還付", pos:"第4章（第42条〜第56条）", kind:"原則", why:"最後は手続の章です。中間申告→確定申告（第45条）→還付という流れで、輸入の引取り申告も同じ章に入ります。計算の章（第2〜3章）と手続の章（第4章）を分けるのは3税法共通の設計です。", link:"前：調整まで終えた税額／ 後：なし（手続で完結）。", pts:"第42条（中間申告）、第45条（確定申告）、第46条・第52条〜（還付）"}
+ ]}
+};
+
+/* map render */
+var mapLaw="h";
+function renderMap(){
+  var m=MAPS[mapLaw];
+  document.getElementById("mapIntro").innerHTML=m.intro;
+  var flow=document.getElementById("mapFlow"); flow.innerHTML="";
+  m.blocks.forEach(function(b,i){
+    if(i>0){ var ar=document.createElement("div"); ar.className="arrow"; ar.innerHTML="↓"; flow.appendChild(ar); }
+    var card=document.createElement("button"); card.type="button"; card.className="block-card";
+    card.innerHTML="<div class='block-head'><div><div class='block-name'>"+(i+1)+". "+esc(b.name)+"</div><div class='block-pos'>"+esc(b.pos)+"</div></div><span class='kind "+(KIND_CLASS[b.kind]||"")+"'>"+esc(b.kind)+"</span></div>"
+      +"<div class='block-why'><strong>なぜこの位置か：</strong>"+esc(b.why)+"</div>"
+      +"<dl class='block-more'><dt>前後のつながり</dt><dd>"+esc(b.link)+"</dd><dt>このブロックの代表的な置き場所</dt><dd>"+esc(b.pts)+"</dd></dl>"
+      +"<div class='block-tap'>タップで つながり・代表的な置き場所 を開く</div>";
+    card.addEventListener("click", function(){ card.classList.toggle("open"); });
+    flow.appendChild(card);
+  });
+}
+document.querySelectorAll("#mapLawTabs .law-tab").forEach(function(t){ t.addEventListener("click", function(){
+  document.querySelectorAll("#mapLawTabs .law-tab").forEach(function(x){ x.classList.remove("active"); });
+  t.classList.add("active"); mapLaw=t.getAttribute("data-law"); renderMap();
+});});
+</script>
+<script>
+/* ================================================================
+   データ — 02 / 03 ファイルの法人税分。条文番号は新規作成しない。
+   block / kind は構造マップ上の位置づけ（今回追加した整理）。
+   ================================================================ */
+var TOPICS = [
+  {n:1, group:"s1", block:"h_in", kind:"原則", topic:"所得の金額の計算の通則 — 益金−損金の構造、公正妥当な会計処理基準、資本等取引の除外", short:"計算の通則（益金−損金）", article:"第22条", title:"計算の通則", loc:"第2編 第1章 第1節 第2款 通則", related:"第21条（課税標準）", deleg:"通則は法律で完結（委任なし）", route:"第1節 → 第2款 → 第22条（款の先頭・通則）", target:30, sign:"所得計算の出発点を確認したい。益金と損金の全体構造から入る。", why:"計算全体の土台です。所得＝益金−損金という骨格を最初に置くことで、この後に続く益金・損金の各論はすべてこの通則の具体化として読めます。入口のブロックにあるのは偶然ではなく、構造の出発点だからです。"},
+  {n:2, group:"s1", block:"h_eki", kind:"原則", topic:"収益の計上時期 — 引渡し基準、契約効力発生日など近接する日での経理", short:"収益の額（計上時期）", article:"第22条の2", title:"収益の額", loc:"第2編 第1章 第1節 第3款 第1目", related:"第22条2項", deleg:"適用に必要な事項・価額の細目は政令（第7項ほか）", route:"第1節 → 第3款（益金）→ 第1目 → 第22条の2", target:60, sign:"売上などの収益をいつ計上するか。引渡しの日で見るのか、契約の効力発生日に近い日で経理できるのかを確認したい。", why:"益金ブロックの先頭です。『収益は益金に入る』という原則を、計上時期という具体的な物差しに落とした規定なので、通則の直後・益金の入口に置かれます。"},
+  {n:3, group:"s1", block:"h_eki", kind:"例外・制限", topic:"受取配当の益金不算入 — 株式区分（完全子法人／関連法人／その他／非支配目的）で割合が変わる", short:"受取配当の益金不算入", article:"第23条", title:"受取配当等の益金不算入", loc:"第2編 第1章 第1節 第3款 第1目の2", related:"第23条の2（外国子会社配当）、第24条（みなし配当）", deleg:"区分の判定方法・利子相当額の計算は政令。第7項の明細書添付が適用要件（法律に明記）", route:"第1節 → 第3款 → 第1目の2 → 第23条。外国子会社なら第23条の2、再編等が絡めば第24条まで", target:60, sign:"内国法人が完全子会社から配当を受けた。益金に入れない部分の割合を、株式の区分ごとに確認したい。", why:"配当も収益なので本来は益金に入りますが、法人間の二重課税を調整するため、あえて入れない部分を設けた例外です。例外は原則と同じ益金ブロックの中に置く——この並びが構造のポイントです。並びとしては収益の次に置かれます。"},
+  {n:4, group:"s1", block:"h_eki", kind:"例外・制限", topic:"みなし配当 — 合併・分割・資本の払戻し・自己株式取得などで受けた交付が配当にみなされるか", short:"みなし配当", article:"第24条", title:"みなし配当", loc:"第2編 第1章 第1節 第3款 第1目の2", related:"第23条1項1号・2号", deleg:"株式に対応する部分の金額の計算方法は政令（第4項）", route:"第1節 → 第3款 → 第1目の2 → 第24条", target:60, sign:"合併や自己株式の取得で交付を受けた。配当とみなされる部分があるかを確認したい。", why:"配当という名前でなくても、実質が配当なら配当として扱うための規定です。受取配当の不算入（第23条）と同じ目に並ぶのは、不算入の前提として『配当に当たるか』を決める話だからです。位置は受取配当の隣です。"},
+  {n:5, group:"s1", block:"h_eki", kind:"例外・制限", topic:"資産の評価益 — 原則は益金不算入、更生・再生時の例外", short:"評価益（原則不算入）", article:"第25条", title:"資産の評価益の益金不算入等", loc:"第2編 第1章 第1節 第3款 第2目", related:"第33条（評価損）と対で読む", deleg:"例外となる評価換え・評定・金額は政令。第6項の明細・書類添付が要件", route:"益金側は第3款第2目・第25条／損金側は第4款第2目・第33条。両方あることを忘れない", target:60, sign:"資産の時価が上がった。評価益を益金に入れるのか、原則と例外を確認したい。", why:"含み益は実現するまで課税しない、という原則の表れです。益金ブロックに置かれますが中身は『入れない』規定。損金側の評価損（第33条）と対で読むと、実現主義で両側をそろえる構造が見えます。並びとしては受取配当の次です。"},
+  {n:6, group:"s1", block:"h_eki", kind:"特例", topic:"完全支配関係がある法人からの受贈益の益金不算入", short:"受贈益の益金不算入", article:"第25条の2", title:"受贈益の益金不算入", loc:"第2編 第1章 第1節 第3款 第3目", related:"第37条（寄附金）— 相手側と対", deleg:"受贈益の額の定義は第2項に法律で明記", route:"第1節 → 第3款 → 第3目 → 第25条の2", target:60, sign:"完全支配関係にある親会社から無償で資産の贈与を受けた。受贈益を益金に入れるか確認したい。", why:"無償の受贈は本来は益金ですが、完全支配関係の内部の移転はグループを一体とみて課税を止める例外です。渡す側の寄附金（第37条）とは、益金側と損金側で対になっています。"},
+  {n:7, group:"s1", block:"h_eki", kind:"原則", topic:"法人税等の還付金 — 益金に入るか／入らないか", short:"還付金の益金算入", article:"第26条", title:"還付金等の益金算入", loc:"第2編 第1章 第1節 第3款 第4目", related:"第38条（損金不算入の税目）", deleg:"対象は法律の各号で列挙（委任なし）", route:"第1節 → 第3款 → 第4目 → 第26条", target:60, sign:"法人税等の還付を受けた。この還付金は益金の額に入るのか確認したい。", why:"還付金は『戻ってきたお金』ですが、税務上は収益の一種として益金ブロックで処理します。どの税目の還付が入るかは、損金不算入の税目（第38条）と裏表の関係にあります。益金ブロックの締めに当たります。"},
+  {n:8, group:"s1", block:"h_son", kind:"原則", topic:"棚卸資産の評価方法 — 選定・届出なしの場合の扱い", short:"棚卸資産の評価", article:"第29条", title:"棚卸資産の売上原価", loc:"第2編 第1章 第1節 第4款 第1目", related:"第22条3項1号（売上原価）", deleg:"評価方法の種類・選定手続・取得価額は政令（第2項）。法定方法も政令側", route:"第4款 → 第1目に3条文が並ぶ（第29条→第31条→第32条）。資産名で目を止める", target:30, sign:"棚卸資産の評価方法を選定していない。届出がない場合にどの方法で売上原価を計算するか確認したい。", why:"損金ブロックの先頭です。売上原価は損金の入口であり、棚卸資産→減価償却→繰延資産と、資産の並びが会計の計算手順そのままになっています。"},
+  {n:9, group:"s1", block:"h_son", kind:"原則", topic:"減価償却 — 損金経理が要件、償却限度額まで", short:"減価償却", article:"第31条", title:"減価償却資産の償却費", loc:"第2編 第1章 第1節 第4款 第1目", related:"第32条（繰延資産）", deleg:"償却方法・選定手続・取得価額・資本的支出は政令（第6項）", route:"第4款 → 第1目 → 第31条", target:30, sign:"固定資産の償却費を計上した。損金経理が要件になることと、限度額までの扱いを確認したい。", why:"費用配分の原則的な規定で、損金ブロックの本体に置かれます。『損金経理をした金額のうち限度額まで』という骨格は法律にあり、償却方法などの細目は政令に委ねる、という役割分担も読み取れます。並びとしては棚卸資産の次です。"},
+  {n:10, group:"s1", block:"h_son", kind:"原則", topic:"繰延資産の償却 — 支出の効果の及ぶ期間で計算", short:"繰延資産の償却", article:"第32条", title:"繰延資産の償却費", loc:"第2編 第1章 第1節 第4款 第1目", related:"第31条（減価償却）", deleg:"限度額の計算は政令（第1項）", route:"第4款 → 第1目 → 第32条（第31条の隣）", target:30, sign:"繰延資産に当たる支出をした。効果の及ぶ期間でどう償却するか確認したい。", why:"減価償却の隣に置かれる費用配分の原則規定です。形のある資産（償却資産）と形のない支出（繰延資産）を同じ目に並べ、『期間で配分する費用』の塊として扱う構造です。"},
+  {n:11, group:"s1", block:"h_son", kind:"例外・制限", topic:"資産の評価損 — 原則は損金不算入、災害・更生・再生時の例外と損金経理要件", short:"評価損（原則不算入）", article:"第33条", title:"資産の評価損の損金不算入等", loc:"第2編 第1章 第1節 第4款 第2目", related:"第25条（評価益）と対で読む", deleg:"例外事実・評定・金額は政令。第7項の明細・書類添付が要件", route:"損金側は第4款第2目・第33条／益金側は第3款第2目・第25条", target:60, sign:"災害で事業用固定資産に著しい損傷が出た。帳簿価額を切り下げる評価損を損金に入れられるか確認したい。", why:"置き場所は損金ブロックですが、中身は『原則は入れない』という制限です。益金側の評価益不算入（第25条）と対で、含み損益は実現まで触らないという構造を両側から固めています。災害等の例外は、その制限のさらに例外です。"},
+  {n:12, group:"s1", block:"h_lim", kind:"例外・制限", topic:"役員給与 — 定期同額／事前確定届出／業績連動の3類型に入らないと損金不算入。不相当高額・仮装経理", short:"役員給与の損金不算入", article:"第34条", title:"役員給与の損金不算入", loc:"第2編 第1章 第1節 第4款 第3目", related:"第36条（過大な使用人給与）", deleg:"類型の細目・不相当高額部分の金額は政令。届出は1項2号イに法律で明記", route:"第4款 → 第3目 → 第34条1項の各号（類型判定は号を順に潰す）", target:60, sign:"取締役に毎月同額の給与を支払ってきたが、期の途中で増額した。この増額分が損金に入る類型に当たるか確認したい。", why:"人件費は本来は損金ですが、役員給与は恣意的な利益調整を防ぐため、3類型に当てはまるものだけを認める制限として置かれます。本体の後ろに『絞る』ブロックがある典型例です。並びとしては評価損の次、寄附金の前です。"},
+  {n:13, group:"s1", block:"h_lim", kind:"例外・制限", topic:"寄附金の損金不算入 — 限度額計算、国等・指定寄附・特定公益増進法人への寄附の扱い、低額譲渡", short:"寄附金の損金不算入", article:"第37条", title:"寄附金の損金不算入", loc:"第2編 第1章 第1節 第4款 第4目", related:"第25条の2（受贈益）", deleg:"限度額の計算は政令（第1項）。第9項の明細添付等が適用要件", route:"第4款 → 第4目 → 第37条。まず1項（原則・限度）、次に3〜5項（例外の寄附先）", target:60, sign:"国や特定公益増進法人へ寄附をした。全額が損金になるのか、限度と寄附先ごとの扱いを確認したい。", why:"寄附は事業の費用とは言い切れない支出なので、損金に入れる範囲を限度で絞る制限規定です。内部に『原則（限度あり）→寄附先ごとの例外（全額認めるもの）』という二重構造を持っています。並びとしては役員給与の次で、益金側の受贈益（第25条の2）と対になっています。"},
+  {n:14, group:"s1", block:"h_lim", kind:"例外・制限", topic:"損金に入らない税目の判別 — 法人税・住民税など", short:"法人税額等の損金不算入", article:"第38条", title:"法人税額等の損金不算入", loc:"第2編 第1章 第1節 第4款 第5目", related:"第39条、第39条の2、第40条、第41条（同目に並ぶ）", deleg:"対象税目は法律で列挙（委任なし）", route:"第4款 → 第5目 → 第38条。同目に第39条〜第41条が並ぶ", target:60, sign:"法人税や住民税を納付した。これらが損金に入る税目かどうかを判別したい。", why:"税金を損金に入れると税額が税額を減らす循環になるため、対象税目を列挙して塞ぐ制限です。同じ目に所得税額控除・外国税額控除を受ける税額の不算入（第40条・第41条）が並び、『税金まわりの損金調整』の塊になっています。並びとしては寄附金の次で、益金側の還付金（第26条）と対になっています。"},
+  {n:15, group:"s1", block:"h_spec", kind:"特例", topic:"圧縮記帳 — 国庫補助金等で取得した固定資産、損金経理／積立金方式、特別勘定", short:"圧縮記帳（基本形）", article:"第42条・第43条", title:"国庫補助金等で取得した固定資産等の圧縮額の損金算入／特別勘定", loc:"第2編 第1章 第1節 第4款 第6目", related:"第44条〜第50条（応用形）", deleg:"圧縮限度額の計算（前期取得分）・経理方法は政令。第42条3項の明細記載が適用要件", route:"第4款 → 第6目 → 第42条。当年度に取得が間に合わない話なら第43条（特別勘定）まで", target:60, sign:"国庫補助金で固定資産を取得した。圧縮記帳で損金算入できるか、経理の方式を確認したい。", why:"補助金は益金、資産取得は資本的支出——原則どおりだと補助目的の投資が税で細るため、課税を将来へ繰り延べる特例です。本体と制限を通過した後の『調整』の塊（第6目）に置かれます。制限の後ろ、応用形の前に当たります。"},
+  {n:16, group:"s1", block:"h_spec", kind:"特例", topic:"圧縮記帳の応用形 — 特別勘定からの圧縮、工事負担金、保険金等で代替資産取得、固定資産の交換", short:"圧縮記帳（応用形）", article:"第44条・第45条・第47〜49条・第50条", title:"特別勘定／工事負担金／保険金等／交換", loc:"第2編 第1章 第1節 第4款 第6目", related:"第42条・第43条（基本形）", deleg:"いずれも明細記載が適用要件。差益金・圧縮限度額の計算は政令", route:"第4款 → 第6目 → 基本形（第42条・第43条）の続きとして第44条〜第50条", target:60, sign:"保険金で代替資産を取得した／固定資産を交換した。圧縮記帳の応用形に当たるか確認したい。", why:"基本形（補助金）と同じ目に、発生原因の違う繰延べ（保険金・交換・工事負担金）が並びます。『課税を繰り延べて事業の継続を止めない』という同じ目的の特例群が1つの目に集まる構造です。基本形の後ろに、場面ごとの応用形が並びます。"},
+  {n:17, group:"s1", block:"h_spec", kind:"特例", topic:"貸倒引当金 — 個別評価と一括評価、対象法人の制限、損金経理＋明細要件、翌期の洗替え", short:"貸倒引当金", article:"第52条", title:"貸倒引当金", loc:"第2編 第1章 第1節 第4款 第7目", related:"第64条の2（リース債権との関係）", deleg:"繰入限度額の計算は政令（個別・一括とも）。対象は中小法人等・銀行等などに限定（1項各号）。第10項で翌期に益金算入", route:"第1節 → 第4款 → 目を後ろへ（第6目 圧縮 → 第7目 貸倒引当金）。条番号は50番台と意識する", target:60, sign:"取引先への債権に貸倒れの懸念がある。個別評価と一括評価の区別と、引当金を設定できる法人の範囲を確認したい。", why:"まだ発生していない損失を先取りして引くのは、実現した費用だけを引く原則への特例です。だから対象法人を限定したうえで、圧縮記帳の次の目に置かれます。翌期に洗い替えて益金に戻す仕組みも、特例らしい『行き来』の構造です。位置づけは圧縮の次、繰越欠損金の前です。"},
+  {n:18, group:"s1", block:"h_son", kind:"原則", topic:"賃貸借取引（リースではない）で支払う金額の損金算入時期 — 債務確定分", short:"賃貸借取引の損金算入時期", article:"第53条", title:"賃貸借取引に係る支払金額の損金算入", loc:"第2編 第1章 第1節 第4款 第7目の2", related:"第64条の2（リース取引）と区別", deleg:"適用の細目は政令（第2項）", route:"第4款 → 第7目の2 → 第53条。リース取引（第64条の2）と混同しない", target:60, sign:"リースではない通常の賃貸借で支払う金額がある。債務が確定した分の損金算入時期を確認したい。", why:"債務が確定した分をその期の損金にする、時期の原則を確認する規定です。引当金の直後に枝番の目で置かれるのは、『未確定のものは引当金の特例、確定したものはこちらの原則』と切り分けるためです。リース取引とは対比して読む規定です。"},
+  {n:19, group:"s1", block:"h_spec", kind:"特例", topic:"譲渡制限付株式・新株予約権を対価とする役務提供 — 費用の帰属年度は個人側の課税が確定した日", short:"譲渡制限付株式等（役務提供の対価）", article:"第54条・第54条の2", title:"譲渡制限付株式／新株予約権を対価とする費用等", loc:"第2編 第1章 第1節 第4款 第7目の3", related:"第34条（役員給与の類型）", deleg:"課税額が生じないときは損金不算入（各第2項）。明細書の確定申告書添付が必要", route:"第4款 → 第7目の3 → 第54条・第54条の2", target:60, sign:"役員へ譲渡制限付株式を交付した。法人側で費用として計上できる年度はいつか確認したい。", why:"現金でない対価の費用化は、法人側と個人側の課税タイミングをそろえる必要があるため、時期を個人側の課税確定日に寄せる特例として置かれます。役員給与の制限（第34条）とは別物として、特例側にあります。並びとしては賃貸借の次で、役員給与と関連します。"},
+  {n:20, group:"s1", block:"h_lim", kind:"例外・制限", topic:"隠蔽・仮装に要した費用、重加算税・延滞税・罰金・課徴金・賄賂は損金に入るか", short:"不正行為等の費用の損金不算入", article:"第55条", title:"不正行為等に係る費用等の損金不算入", loc:"第2編 第1章 第1節 第4款 第7目の4", related:"第38条（法人税額等）", deleg:"対象は法律の各項・各号で列挙", route:"第4款 → 第7目の4 → 第55条", target:60, sign:"重加算税や罰金を支払った／隠蔽に要した費用がある。これらが損金に入るか確認したい。", why:"制裁や不正の費用を損金に入れると制裁が税で薄まるため、列挙して塞ぐ制限です。第38条（税目の不算入）と同じ発想の制限ですが、対象が『行為に伴う費用』まで広がるため、独立した目に置かれます。つながりは「制限の締め、引当金の手前」です。"},
+  {n:21, group:"s1", block:"h_spec", kind:"特例", topic:"繰越欠損金 — 10年繰越、控除限度は所得の50％（中小法人等は全額）、連続申告・帳簿保存が要件、適格合併での引継ぎ制限", short:"繰越欠損金の損金算入", article:"第57条", title:"青色申告書を提出した事業年度の欠損金の繰越し", loc:"第2編 第1章 第1節 第4款 第8目", related:"第57条の2、第58条、第59条、第80条（繰戻し還付）", deleg:"引継ぎ制限の判定（共同事業要件・5年継続支配等）は政令委任が多い。第10項の申告・保存要件と第11項の限度割合は条文内で確認できる", route:"第1節 → 第4款 → 第8目 → 第57条。適格合併の引継ぎが絡めば関連条文まで一気に確認", target:60, sign:"適格合併で被合併法人の欠損金を引き継ぎたい。あわせて自社の繰越欠損金の控除限度と申告・帳簿の要件まで確認したい。", why:"単年度で計算する原則への、年度間調整の特例です。赤字と黒字をならすために欠損を将来へ運ぶ仕組みで、所得計算ブロックの最後の目に置かれます。還付の形をとる繰戻し（第80条）は手続なので別の節、という切り分けも構造のポイントです。位置づけは損金ブロックの最後で、税額計算の直前です。"},
+  {n:22, group:"s1", block:"h_son", kind:"原則", topic:"有価証券の譲渡益・譲渡損", short:"有価証券の譲渡損益", article:"第61条の2", title:"有価証券の譲渡損益", loc:"第2編 第1章 第1節 第4款内（有価証券関係の目。目の名称は紙で最終確認）", related:"第24条（みなし配当との交錯）", deleg:"—（03ファイルのメモ参照）", route:"第4款内・有価証券関係 → 第61条の2", target:60, sign:"保有する有価証券を譲渡した。譲渡益・譲渡損の計算の根拠を確認したい。", why:"譲渡損益の計算という所得計算の本体の話です。節の後半に置かれるのは、個別資産の譲渡まわり（有価証券→完全支配関係→組織再編）がひとかたまりの領域として後段に編成されているためです。つながりは評価の後、繰延べの前です。"},
+  {n:23, group:"s1", block:"h_spec", kind:"特例", topic:"完全支配関係がある法人間の取引の損益の繰延べ", short:"完全支配関係法人間の損益繰延べ", article:"第61条の11", title:"完全支配関係がある法人間の取引の損益の調整", loc:"第2編 第1章 第1節 第4款内（目の名称は紙で最終確認）", related:"第57条4項（欠損金の制限と連動）", deleg:"—", route:"第4款内 → 第61条の11", target:60, sign:"完全支配関係にあるグループ法人へ資産を譲渡した。譲渡損益を繰り延べる取扱いを確認したい。", why:"グループ内部の譲渡は、外部への売却まで損益を繰り延べる特例です。受贈益の不算入（第25条の2）と同じく『完全支配関係は一体とみる』発想で、譲渡損益の原則規定の後ろに調整として置かれます。つながりは有価証券譲渡の後、組織再編の前です。"},
+  {n:24, group:"s1", block:"h_spec", kind:"特例", topic:"組織再編成（合併・分割・現物出資・現物分配）での資産の譲渡損益・引継ぎ", short:"組織再編成の取扱い", article:"第62条台", title:"合併・分割等（第62条の5 現物分配、第62条の7、第62条の9 ほか）", loc:"第2編 第1章 第1節 第4款内（組織再編成関係）", related:"第57条（欠損金引継ぎ）、圧縮記帳各条", deleg:"適格要件の細目は第2条の定義＋政令に分散。本番ではまず「適格かどうか」を問題文の事実で判定する", route:"第4款内・組織再編成関係 → 第62条台。まず適格判定から", target:120, sign:"合併・分割などの組織再編を行う。資産の譲渡損益と欠損金の引継ぎの扱いを確認したい。細目の委任に当たったら「委任あり」と判定して止めてよい。", why:"再編は資産の移転という点では譲渡ですが、事業が継続する適格再編では課税を繰り延べる特例の世界です。通常の譲渡損益の後ろに大きな塊として置かれ、入口は常に『適格かどうか』の判定から入ります。つながりは繰延べの後、リースの前です。"},
+  {n:25, group:"s1", block:"h_son", kind:"原則", topic:"リース取引 — 売買とされるもの／賃貸借とされるものの区別と所得計算", short:"リース取引", article:"第64条の2", title:"リース取引", loc:"第2編 第1章 第1節 第4款内（目の名称は紙で最終確認）", related:"第53条（通常の賃貸借）、第52条（リース債権と引当金）", deleg:"リース資産の範囲等は政令", route:"第4款内 → 第64条の2。通常の賃貸借（第53条）と区別する", target:60, sign:"リース契約で資産を導入した。売買として扱うのか賃貸借として扱うのか、区別と所得計算を確認したい。", why:"契約の名前ではなく実質で『売買か賃貸借か』を決め、それぞれの所得計算に振り分ける区分の規定です。通常の賃貸借（第53条）と対にして、取引の性格を決める場所に置かれます。つながりは組織再編の後で、通常の賃貸借（第53条）と対比されます。"},
+  {n:26, group:"s1", block:"h_spec", kind:"特例", topic:"グループ通算制度 — 通算法人間の損益通算・欠損金の通算", short:"グループ通算制度", article:"第64条の5・第64条の7", title:"通算法人の損益通算／欠損金の通算", loc:"第2編 第1章 第1節後半（通算関係）", related:"第57条6〜9項、第26条4項、承認 第64条の9 ほか", deleg:"承認・取りやめ・開始時時価評価（第64条の9〜第64条の12）とセットで1つの塊として位置を覚える", route:"第1節後半（通算関係）→ 第64条の5（損益通算）・第64条の7（欠損金の通算）", target:60, sign:"グループ通算制度を適用している。通算法人間で損益や欠損金を通算する規定を確認したい。", why:"法人ごとに計算する原則を、承認を受けたグループについては一体計算に置き換える特例制度です。所得計算の節の最後尾に、承認関係の条文とセットで大きな塊として置かれます。つながりはリースの後、税額計算の前です。"},
+  {n:27, group:"s2", block:"h_tax", kind:"原則", topic:"税率 — 本則23.2％、中小法人等の軽減19％（年800万円以下の部分）", short:"法人税の税率", article:"第66条", title:"各事業年度の所得に対する法人税の税率", loc:"第2編 第1章 第2節 第1款 税率", related:"—", deleg:"税率は条文に数字で書いてある＝本番で確認できる典型例。第5項の軽減不適用法人の判定に注意", route:"節を変える：第1節を閉じ第2節へ → 第1款 税率 → 第66条", target:30, sign:"中小法人に適用される税率と、軽減税率が使える所得金額の上限を確認したい。", why:"所得計算を終えたら節を変える——税額計算ブロックの入口です。まず率を掛けるのが税額計算の原則の順番で、中小法人の軽減も同じ条文の中に置かれます。つながりは所得計算の後、税額控除の前です。"},
+  {n:28, group:"s2", block:"h_tax", kind:"原則", topic:"法人税額から控除する所得税額（配当等に課された源泉所得税）", short:"所得税額控除", article:"第68条", title:"所得税額の控除", loc:"第2編 第1章 第2節 第2款 税額控除", related:"第40条（控除を受ける所得税額は損金不算入）と対", deleg:"—", route:"第2節 → 第2款 税額控除 → 第68条", target:30, sign:"配当を受ける際に源泉所得税が差し引かれた。法人税額から控除できるか確認したい。", why:"率を掛けた後で、前払い済みの税額を引く調整です。源泉で先に取られた所得税を二重に課さないための仕組みで、税率の款の次の『税額控除』の款に置かれます。損金不算入（第40条）と対で1セットです。つながりは税率の後、外国税額控除の前です。"},
+  {n:29, group:"s2", block:"h_tax", kind:"原則", topic:"外国税額控除", short:"外国税額控除", article:"第69条", title:"外国税額の控除", loc:"第2編 第1章 第2節 第2款 税額控除", related:"第41条、第23条の2、第39条の2", deleg:"—", route:"第2節 → 第2款 → 第69条（第68条の次）", target:30, sign:"国外で税金を納めた。二重課税を調整する外国税額控除の規定を確認したい。", why:"所得税額控除の隣に置かれる、国際的な二重課税の調整です。『率を掛ける→国内の前払いを引く→外国の税を引く』という税額計算ブロック内部の順番が、そのまま条文の並びになっています。"},
+  {n:30, group:"s3", block:"h_proc", kind:"原則", topic:"確定申告 — 期限は事業年度終了の日の翌日から2月以内、記載事項と添付書類", short:"確定申告", article:"第74条", title:"確定申告", loc:"第2編 第1章 第3節", related:"期限延長は第75条・第75条の2。中間申告は同節の前段", deleg:"—", route:"第3節へ → 第74条（節の芯）。還付は第80条まで足を伸ばす", target:60, sign:"確定申告の期限と、申告書に記載・添付すべき事項を確認したい。", why:"計算が終われば手続の節へ移ります。確定申告は手続ブロックの芯で、中間申告が前段、期限延長や還付が周囲にぶら下がる配置になっています。つながりは税額計算の後で、中間申告の後段に当たります。"},
+  {n:31, group:"s3", block:"h_proc", kind:"特例", topic:"欠損金の繰戻しによる法人税の還付（災害損失欠損金を含む）", short:"欠損金の繰戻し還付", article:"第80条", title:"欠損金の繰戻しによる還付", loc:"第2編 第1章 第3節 還付関係", related:"第57条（繰越し）と対で覚える", deleg:"—", route:"第3節 → 還付関係 → 第80条。繰越し（第57条）とは節が違う点に注意", target:60, sign:"当期に欠損金が出た。前期に納めた法人税の還付を受けられるか（繰戻し）を確認したい。", why:"欠損の手当てでも、将来の所得と相殺する『繰越』は計算の話（第57条・所得計算の中）、過去の税金を返してもらう『繰戻し』は還付手続の話なので申告の節に置かれます。置き場所の違いが性格の違いを表す好例です。つながりは確定申告の後ろで、繰越欠損金（第57条）と対です。"}
+];
+
+/* 所得税・消費税の構造ドリル項目 — 04・05 の対応表から、構造理解の核になるもの */
+var EXTRA_ITEMS=[
+  {law:"s", id:"S1", block:"s_kakushu", kind:"原則", topic:"所得の種類の判定 — 利子・配当・給与・事業・譲渡など、どの種類の所得に当たるか", article:"第23条〜第35条", title:"各種所得", loc:"第2編 第2章 第2節 第1款", related:"第21条（計算の順序）", deleg:"種類ごとに金額の計算方法が条文で定まる", route:"第2編 → 第2章 → 第2節 第1款。第23条から種類順に条見出しを追う", sign:"受け取った収入が、どの種類の所得に当たるかで計算方法が変わる場面。", why:"所得税は『所得を種類に分け、種類ごとに金額を出す』のが全ての出発点です。分類が計算方法・通算の可否まで決めるため、計算ブロックの先頭に種類の列挙が置かれます。"},
+  {law:"s", id:"S2", block:"s_tsu", kind:"原則", topic:"収入金額・必要経費の通則 — 収入金額とは何か、必要経費に当たる範囲", article:"第36条・第37条", title:"収入金額／必要経費", loc:"第2編 第2章 第2節 第2款〜第4款", related:"第45条（家事費等の不算入）", deleg:"細目は各款・政令に分散", route:"第2節 → 第2款（通則）→ 第36条・第37条", sign:"各種所得に共通する『収入金額』『必要経費』の物差しを確認したい場面。", why:"種類ごとの計算の後ろに、全種類共通の物差しをまとめて置く設計です。共通ルールを後ろに集約することで、各種所得の条文自体は短く保たれています。"},
+  {law:"s", id:"S3", block:"s_soneki", kind:"原則", topic:"損益通算 — 種類ごとに計算した黒字と赤字を相殺する", article:"第69条", title:"損益通算", loc:"第2編 第2章 第3節", related:"第70条（純損失の繰越）", deleg:"通算の順序は政令", route:"第2章の中で節を変える：第3節 → 第69条", sign:"事業の赤字を給与の黒字と相殺できるか、という場面。", why:"バラバラに計算した金額を初めて寄せ合わせる工程です。『分けて計算し、ここで通算する』という所得税の骨格が、節の切り替わりとして表れています。"},
+  {law:"s", id:"S4", block:"s_soneki", kind:"特例", topic:"純損失の繰越控除 — 青色申告を条件に、損失を翌年以降へ運ぶ", article:"第70条", title:"純損失の繰越控除", loc:"第2編 第2章 第3節", related:"第69条（損益通算）、第143条（青色申告）", deleg:"要件は条文＋青色申告の手続と接続", route:"第3節 → 第69条の次、第70条", sign:"通算しても残った赤字を、来年以降の黒字と相殺したい場面。", why:"単年で切り捨てる原則を、青色申告を条件に緩める特例です。損益通算と同じ節に置かれるのは、通算の『時間方向への延長』だからです。"},
+  {law:"s", id:"S5", block:"s_kojo", kind:"原則", topic:"所得控除 — 社会保険料・医療費・扶養など、人の事情を差し引く", article:"第72条〜第87条", title:"所得控除", loc:"第2編 第2章 第4節", related:"第22条（課税標準）", deleg:"控除額・要件は各条に規定", route:"第2章 → 第4節。第72条〜第87条に固まっている", sign:"医療費や扶養家族の事情を、税額計算の前に差し引きたい場面。", why:"金額計算（いくら儲けたか）が終わった後、税率を掛ける前に『その人の事情』を差し引く独立した工程です。性格が違うので、専用の節に第72条〜第87条と密集して置かれます。"},
+  {law:"s", id:"S6", block:"s_zeigaku", kind:"原則", topic:"税率 — 超過累進税率の適用、山林所得の5分5乗", article:"第89条", title:"税率", loc:"第2編 第3章 第1節", related:"第90条（平均課税）", deleg:"税率表は条文内に明記＝本番で確認できる", route:"章を変える：第3章 → 第1節 → 第89条", sign:"課税所得金額にどの率が掛かるかを確認したい場面。", why:"所得計算の章から章を変えた先が税額計算です。金額の計算と税額の計算を分けるのは3税法共通の設計で、ここがその切り替わりです。"},
+  {law:"s", id:"S7", block:"s_zeigaku", kind:"特例", topic:"配当控除 — 配当所得への二重課税を税額から調整する", article:"第92条", title:"配当控除", loc:"第2編 第3章 第2節", related:"第24条（配当所得）", deleg:"控除割合は条文内に明記", route:"第3章 → 第2節 税額控除 → 第92条", sign:"配当所得がある場合に、法人段階との二重課税を調整したい場面。", why:"税率を掛けた後の、税額そのものからの調整です。所得控除（掛ける前）と税額控除（掛けた後）は置き場所が違う——章と節の配置がその違いを表しています。"},
+  {law:"s", id:"S8", block:"s_gensen", kind:"原則", topic:"年末調整 — 給与の源泉徴収の過不足を年末に精算する", article:"第190条", title:"年末調整", loc:"第4編 第2章 第2節", related:"第183条（給与の源泉徴収）", deleg:"対象外（給与収入2,000万円超）は条文で確認できる", route:"計算の編を離れ第4編へ → 第2章 給与 → 第2節 → 第190条", sign:"毎月天引きされた給与の源泉税を、年末に精算する場面。", why:"天引きの話は計算の第2編にはなく、支払者の義務として第4編に丸ごと独立しています。年末調整はその給与の章の中で『毎月の徴収』の次の節に置かれる精算手続です。編をまたぐ移動が最大のポイントです。"},
+  {law:"c", id:"C1", block:"c_taisho", kind:"原則", topic:"課税の対象 — 事業者が国内で行う資産の譲渡等に課税される構造", article:"第4条", title:"課税の対象", loc:"第1章 総則", related:"第2条（定義）、第5条（納税義務者）", deleg:"細目は第7項が政令に委任", route:"第1章 → 定義（第2条）の次、第4条", sign:"この取引に消費税が掛かるのか、入口の判定をしたい場面。", why:"消費税の出発点は『何に課税するか』です。定義と課税の対象が総則の先頭に並び、ここで取引の性格が決まってから先の工程へ進む設計になっています。"},
+  {law:"c", id:"C2", block:"c_hikazei", kind:"例外・制限", topic:"非課税 — 土地・医療・教育など、課税対象から外される取引", article:"第6条", title:"非課税", loc:"第1章 総則", related:"別表第二（対象リスト・配付外）", deleg:"対象のリスト自体は別表第二で、基準集では引けない", route:"第1章 → 課税の対象（第4条）の後ろ、第6条", sign:"土地の貸付けや医療が、課税対象から外れるかを確認したい場面。", why:"原則（課税）のすぐ後ろに置かれる例外です。消費という性格になじまないものを外す規定で、入口ブロックにくっつけて置かれます。具体的なリストは別表側にある点が注意点です。"},
+  {law:"c", id:"C3", block:"c_hikazei", kind:"特例", topic:"輸出免税 — 輸出取引・国際輸送等は税率ゼロとして扱う", article:"第7条", title:"輸出免税", loc:"第1章 総則", related:"第31条（仕入控除との接続）", deleg:"証明がなければ適用なし（財務省令）", route:"第1章 → 非課税（第6条）の次、第7条", sign:"輸出した商品について、消費税を免除できるかという場面。", why:"消費税は消費地で課税するのが原則なので、輸出は免税にして仕入控除も認める（実質ゼロ税率）という特例です。非課税と並べて置かれますが、仕入控除が効く点で非課税とは性格が違います。"},
+  {law:"c", id:"C4", block:"c_menjo", kind:"例外・制限", topic:"小規模事業者の納税義務免除 — 基準期間の課税売上高1,000万円以下", article:"第9条", title:"小規模事業者の納税義務の免除", loc:"第1章 総則", related:"第2条1項14号（基準期間）", deleg:"基準（1,000万円以下）は条文内に明記", route:"第1章 → 免税（第7条）の後ろ、第9条", sign:"小さい事業者が、そもそも納税義務を負うのかという場面。", why:"取引ではなく事業者の規模に着目した例外です。免除の原則形（第9条）の後ろに特例群が枝番でぶら下がる、『原則形＋抜け道封じ』の塊として設計されています。"},
+  {law:"c", id:"C5", block:"c_hyojun", kind:"原則", topic:"課税標準 — 対価の額（消費税額を含まない）の確定", article:"第28条", title:"課税標準", loc:"第2章 課税標準及び税率", related:"第4条（課税の対象）", deleg:"計算の細目は第5項が政令委任", route:"章を変える：第2章 → 第28条（章は2条だけ）", sign:"売上げの対価の額を、税額計算の土台として確定させたい場面。", why:"入口の判定が終わると章が変わり、計算が始まります。第2章はわずか2条で、売上げ側はここで確定させ、重心は次の仕入控除へ移る設計です。"},
+  {law:"c", id:"C6", block:"c_shiire", kind:"原則", topic:"仕入控除 — 仕入れで支払った消費税額を、売上げの税額から引く", article:"第30条", title:"仕入れに係る消費税額の控除等", loc:"第3章 税額控除等", related:"第45条（確定申告との接続）", deleg:"課税売上割合の計算方法は政令", route:"章を変える：第3章 → 先頭の第30条", sign:"仕入れで負担した消費税を控除して、二重課税を防ぎたい場面。", why:"消費税の仕組みの心臓部です。多段階で課税しても負担が累積しないのはこの控除があるからで、章の先頭に原則として置かれ、保存要件も同じ条文に組み込まれています。"},
+  {law:"c", id:"C7", block:"c_chosei", kind:"特例", topic:"簡易課税 — みなし仕入率で控除額を簡便に計算する", article:"第37条", title:"簡易課税", loc:"第3章 税額控除等", related:"第30条（原則計算）、第9条（免税との区別）", deleg:"要件（基準期間の課税売上高5,000万円以下・届出）は条文内に明記", route:"第3章 → 仕入控除（第30条）の後段、第37条", sign:"中小事業者が、原則計算の代わりに簡便な計算を選びたい場面。", why:"原則計算（第30条）を丸ごと簡素な計算に置き換える特例です。原則と同じ章の後段に置かれることで、『まず原則、選べば特例』という関係が配置に表れています。"},
+  {law:"c", id:"C8", block:"c_chosei", kind:"特例", topic:"貸倒れに係る消費税額の控除 — 回収できなくなった売掛金の税額を戻す", article:"第39条", title:"貸倒れに係る消費税額の控除", loc:"第3章 税額控除等", related:"第45条1項3号ニ（申告での控除項目）", deleg:"対象となる事実の細目は政令委任", route:"第3章 → 後段の第39条（返還等の第38条の次）", sign:"代金を回収できなくなった取引について、納めた消費税を戻したい場面。", why:"申告が終わった後に事情が変わった場合の調整です。返還等（第38条）と並んで章の後段に置かれ、『原則計算の後の手直し』という位置づけが配置に表れています。"}
+];
+
+var SEARCH_IDS = [1,3,11,9,12,13,15,17,27,30,21,24];
+var SEARCH_ITEMS = TOPICS.filter(function(t){ return SEARCH_IDS.indexOf(t.n)!==-1; });
+function blockName(law,id){ var bs=MAPS[law].blocks; for(var i=0;i<bs.length;i++){ if(bs[i].id===id) return bs[i].name; } return id; }
+function blockObj(law,id){ var bs=MAPS[law].blocks; for(var i=0;i<bs.length;i++){ if(bs[i].id===id) return bs[i]; } return null; }
+
+/* mode switch */
+var modeBtns=document.querySelectorAll(".mode-btn");
+modeBtns.forEach(function(b){ b.addEventListener("click", function(){
+  modeBtns.forEach(function(x){ x.classList.remove("active"); });
+  b.classList.add("active");
+  document.querySelectorAll(".panel").forEach(function(p){ p.classList.remove("active"); });
+  document.getElementById("panel-"+b.getAttribute("data-mode")).classList.add("active");
+  stopTimer();
+});});
+renderMap();
+</script>
+<script>
+/* ================================================================
+   MODE 2: 構造ドリル — どのブロックか／原則・例外・特例かを構造からたどる
+   ================================================================ */
+var ALL_ITEMS=[];
+TOPICS.forEach(function(t){ ALL_ITEMS.push({law:"h", id:"H"+t.n, block:t.block, kind:t.kind, topic:t.topic, sign:t.sign, why:t.why, article:t.article, title:t.title, loc:t.loc, related:t.related, deleg:t.deleg, route:t.route, target:t.target}); });
+EXTRA_ITEMS.forEach(function(e){ ALL_ITEMS.push(e); });
+
+var dLawFilter="all", dOrder=ALL_ITEMS.slice(), dIdx=0;
+var dAns={}, dWeak={}, dShuffle=false, dWeakOnly=false;
+function dPool(){
+  var base=dOrder.filter(function(it){ return dLawFilter==="all" || it.law===dLawFilter; });
+  if(dWeakOnly){ var w=base.filter(function(it){ return dWeak[it.id]; }); return w.length? w : base; }
+  return base;
+}
+function dCounts(){
+  var ok=0, ng=0;
+  Object.keys(dAns).forEach(function(k){ var a=dAns[k]; if(!a.done) return; if(a.blockOk && a.kindOk) ok++; else ng++; });
+  return {ok:ok, ng:ng};
+}
+function dOptionsFor(it){
+  /* 正解ブロック＋同じ法律の他ブロックから3つ（決定的に選ぶ） */
+  var bs=MAPS[it.law].blocks.map(function(b){ return b.id; });
+  var others=bs.filter(function(id){ return id!==it.block; });
+  var seed=0; for(var i=0;i<it.id.length;i++) seed+=it.id.charCodeAt(i)*7;
+  var picks=[];
+  for(var k=0;k<others.length && picks.length<3;k++){ picks.push(others[(seed+k*2)%others.length]); }
+  picks=Array.from(new Set(picks));
+  var opts=picks.concat([it.block]);
+  /* 決定的シャッフル */
+  for(var j=opts.length-1;j>0;j--){ var r=(seed*(j+3))%(j+1); var tmp=opts[j]; opts[j]=opts[r]; opts[r]=tmp; }
+  return opts;
+}
+var KINDS=["原則","例外・制限","特例"];
+var dCurrent=null;
+function dRender(){
+  var pool=dPool();
+  if(dIdx>=pool.length) dIdx=Math.max(0,pool.length-1);
+  if(dIdx<0) dIdx=0;
+  dCurrent=pool[dIdx];
+  var c=dCounts();
+  document.getElementById("drillProgress").innerHTML="<strong>"+(pool.length?(dIdx+1):0)+"</strong> / "+pool.length+" 問目"+(dWeakOnly?"（苦手のみ）":"");
+  document.getElementById("drillFill").style.width=(pool.length? ((dIdx+1)/pool.length*100):0)+"%";
+  document.getElementById("drillOk").textContent=c.ok;
+  document.getElementById("drillNg").textContent=c.ng;
+  document.getElementById("drillWeakCount").textContent=Object.keys(dWeak).length;
+  document.getElementById("drillDone").classList.remove("show");
+  document.getElementById("drillBody").style.display="";
+  if(!dCurrent) return;
+  var it=dCurrent;
+  document.getElementById("drillLawBadge").textContent=LAW_NAME[it.law];
+  document.getElementById("drillId").textContent="";
+  document.getElementById("drillQuestion").textContent=it.topic;
+  document.getElementById("drillSign").textContent=it.sign? ("状況："+it.sign) : "";
+  var a=dAns[it.id]||{};
+  /* step1 */
+  var bwrap=document.getElementById("drillBlockOpts"); bwrap.innerHTML="";
+  dOptionsFor(it).forEach(function(bid){
+    var bo=blockObj(it.law,bid);
+    var btn=document.createElement("button"); btn.type="button"; btn.className="opt";
+    btn.innerHTML=esc(bo.name)+"<small>"+esc(bo.pos)+"</small>";
+    if(a.blockPick){
+      btn.disabled=true;
+      if(bid===it.block) btn.classList.add("correct");
+      else if(bid===a.blockPick) btn.classList.add("wrong");
+      else btn.classList.add("dim");
+    }
+    btn.addEventListener("click", function(){ dPickBlock(bid); });
+    bwrap.appendChild(btn);
+  });
+  /* step2 */
+  var step2=document.getElementById("drillStep2");
+  if(a.blockPick){
+    step2.style.display="";
+    var kwrap=document.getElementById("drillKindOpts"); kwrap.innerHTML="";
+    KINDS.forEach(function(k){
+      var btn=document.createElement("button"); btn.type="button"; btn.className="opt";
+      btn.textContent=k==="原則"?"原則 — 計算の通常の進め方":(k==="例外・制限"?"例外・制限 — 原則を外す／絞る":"特例 — 原則のままだと困る場面への手当て");
+      if(a.kindPick){
+        btn.disabled=true;
+        if(k===it.kind) btn.classList.add("correct");
+        else if(k===a.kindPick) btn.classList.add("wrong");
+        else btn.classList.add("dim");
+      }
+      btn.addEventListener("click", function(){ dPickKind(k); });
+      kwrap.appendChild(btn);
+    });
+  } else step2.style.display="none";
+  /* feedback */
+  var fb=document.getElementById("drillFeedback");
+  if(a.done){
+    fb.classList.add("show");
+    var bo=blockObj(it.law,it.block);
+    var bothOk=a.blockOk&&a.kindOk;
+    var v=document.getElementById("drillVerdict");
+    v.textContent=bothOk? "構造でたどり着けました" : "構造の確認 — ずれた段から読み直してください";
+    v.className="verdict "+(bothOk?"ok":"ng");
+    document.getElementById("drillFbBody").innerHTML="<strong>置き場所は「"+esc(bo.name)+"」／性格は「"+esc(it.kind)+"」。</strong><br>"+esc(it.why);
+    document.getElementById("drillDetail").innerHTML="<dt>ブロックの考え方（構造マップより）</dt><dd>"+esc(bo.why)+"</dd><dt>前後のつながり</dt><dd>"+esc(bo.link)+"</dd><dt>関連する置き場所</dt><dd>"+esc(it.related)+"</dd><dt>委任・要件メモ</dt><dd>"+esc(it.deleg)+"</dd>";
+    document.getElementById("drillLocFoot").innerHTML="参考（所在）："+esc(LAW_NAME[it.law])+" "+esc(it.article)+"「"+esc(it.title)+"」｜ "+esc(it.loc)+"<br>紙での降り方："+esc(it.route);
+  } else fb.classList.remove("show");
+  document.getElementById("drillWeakBtn").textContent=dWeak[it.id]?"★ 苦手マーク中（タップで解除）":"☆ 苦手にマーク";
+  document.getElementById("drillWeakBtn").classList.toggle("on", !!dWeak[it.id]);
+  document.getElementById("drillPrev").disabled=(dIdx===0);
+  document.getElementById("drillNext").textContent=(dIdx>=pool.length-1)?"結果を見る →":"次へ →";
+}
+function dPickBlock(bid){
+  var it=dCurrent; if(!it) return;
+  var a=dAns[it.id]||{}; if(a.blockPick) return;
+  a.blockPick=bid; a.blockOk=(bid===it.block);
+  dAns[it.id]=a; dRender();
+}
+function dPickKind(k){
+  var it=dCurrent; if(!it) return;
+  var a=dAns[it.id]||{}; if(a.kindPick) return;
+  a.kindPick=k; a.kindOk=(k===it.kind); a.done=true;
+  dAns[it.id]=a;
+  if(!(a.blockOk&&a.kindOk)) dWeak[it.id]=true;
+  dRender();
+}
+document.getElementById("drillWeakBtn").addEventListener("click", function(){
+  if(!dCurrent) return;
+  if(dWeak[dCurrent.id]) delete dWeak[dCurrent.id]; else dWeak[dCurrent.id]=true;
+  dRender();
+});
+document.getElementById("drillPrev").addEventListener("click", function(){ if(dIdx>0){ dIdx--; dRender(); } });
+document.getElementById("drillNext").addEventListener("click", function(){
+  var pool=dPool();
+  if(dIdx>=pool.length-1){
+    document.getElementById("drillBody").style.display="none";
+    document.getElementById("drillDone").classList.add("show");
+    var c=dCounts();
+    document.getElementById("drillDoneText").textContent="回答 "+(c.ok+c.ng)+" 問中、ブロックと性格の両方を構造でたどれたのは "+c.ok+" 問。ずれた論点 "+Object.keys(dWeak).length+" 件は苦手に入っています。構造マップに戻って、ずれたブロックの「なぜこの位置か」を読み直すのが近道です。";
+  } else { dIdx++; dRender(); }
+});
+document.querySelectorAll("#drillLawTabs .law-tab").forEach(function(t){ t.addEventListener("click", function(){
+  document.querySelectorAll("#drillLawTabs .law-tab").forEach(function(x){ x.classList.remove("active"); });
+  t.classList.add("active"); dLawFilter=t.getAttribute("data-law"); dIdx=0; dRender();
+});});
+document.getElementById("drillShuffleBtn").addEventListener("click", function(){
+  dShuffle=!dShuffle;
+  dOrder=dShuffle? shuffle(ALL_ITEMS) : ALL_ITEMS.slice();
+  dIdx=0; this.textContent="シャッフル "+(dShuffle?"ON":"OFF"); this.classList.toggle("active", dShuffle); dRender();
+});
+document.getElementById("drillFilterWeakBtn").addEventListener("click", function(){
+  if(!dWeakOnly && Object.keys(dWeak).length===0){ this.textContent="苦手がまだありません"; var self=this; setTimeout(function(){ self.textContent="苦手のみ表示"; },1400); return; }
+  dWeakOnly=!dWeakOnly; dIdx=0; this.textContent=dWeakOnly?"すべて表示に戻す":"苦手のみ表示"; this.classList.toggle("active", dWeakOnly); dRender();
+});
+function dReset(){ dAns={}; dWeak={}; dIdx=0; dWeakOnly=false; var b=document.getElementById("drillFilterWeakBtn"); b.textContent="苦手のみ表示"; b.classList.remove("active"); dRender(); }
+document.getElementById("drillResetBtn").addEventListener("click", dReset);
+document.getElementById("drillRestart").addEventListener("click", function(){ dOrder=shuffle(ALL_ITEMS); dShuffle=true; var b=document.getElementById("drillShuffleBtn"); b.textContent="シャッフル ON"; b.classList.add("active"); dReset(); });
+document.getElementById("drillWeakOnlyBtn").addEventListener("click", function(){
+  if(Object.keys(dWeak).length===0){ document.getElementById("drillDoneText").textContent="苦手がまだありません。ずれた論点が自動で苦手に入ります。"; return; }
+  dWeakOnly=true; dIdx=0; var b=document.getElementById("drillFilterWeakBtn"); b.textContent="すべて表示に戻す"; b.classList.add("active"); dRender();
+});
+
+/* ================================================================
+   MODE 3: 検索ドリル — 答えは「構造に沿った降り方」が主、条文は最後に添える
+   ================================================================ */
+var sItems = SEARCH_ITEMS.slice();
+var sOrder = sItems.slice();
+var sIdx=0, sWeak={}, sInTime=0, sRevealed={};
+var timerId=null, elapsed=0, targetSec=60, timerRunning=false;
+function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } timerRunning=false; }
+function sCurrent(){ return sOrder[sIdx]; }
+function sKeyOf(it){ return "S"+it.n; }
+function sRender(){
+  stopTimer(); elapsed=0;
+  var it=sCurrent(); if(!it) return;
+  targetSec=it.target;
+  document.getElementById("searchProgress").innerHTML="<strong>"+(sIdx+1)+"</strong> / "+sOrder.length+" 問目";
+  document.getElementById("searchFill").style.width=((sIdx+1)/sOrder.length*100)+"%";
+  document.getElementById("searchInTime").textContent=sInTime;
+  document.getElementById("searchWeakCount").textContent=Object.keys(sWeak).length;
+  document.getElementById("searchDone").classList.remove("show");
+  document.getElementById("searchBody").style.display="";
+  document.getElementById("searchTargetBadge").textContent="目標 "+(targetSec>=120?"2分":targetSec+"秒");
+  document.getElementById("searchId").textContent="";
+  document.getElementById("searchQuestion").textContent=it.sign;
+  document.getElementById("timerNum").textContent="0:00";
+  document.getElementById("timerNum").classList.remove("over");
+  document.getElementById("timerBarFill").style.width="100%";
+  document.getElementById("timerBarFill").classList.remove("low");
+  document.getElementById("timerInfo").innerHTML="<strong>紙の基準集を用意してスタート。</strong><br>まず構造でブロックの当たりを付け、そこから1段ずつ降りること。";
+  document.getElementById("timerStartBtn").disabled=false;
+  document.getElementById("timerStartBtn").textContent="▶ スタート";
+  document.getElementById("foundBtn").disabled=true;
+  document.getElementById("giveupBtn").disabled=true;
+  document.getElementById("searchFeedback").classList.remove("show");
+  var key=sKeyOf(it);
+  document.getElementById("searchWeakBtn").textContent=sWeak[key]?"★ 苦手マーク中（タップで解除）":"☆ 苦手にマーク";
+  document.getElementById("searchWeakBtn").classList.toggle("on", !!sWeak[key]);
+  document.getElementById("searchPrev").disabled=(sIdx===0);
+  document.getElementById("searchNext").textContent=(sIdx>=sOrder.length-1)?"結果を見る →":"次へ →";
+  if(sRevealed[key]) sShowAnswer(sRevealed[key]==="intime", true);
+}
+function tick(){
+  elapsed++;
+  document.getElementById("timerNum").textContent=fmtTime(elapsed);
+  if(targetSec>0){
+    var remain=Math.max(0, targetSec-elapsed);
+    document.getElementById("timerBarFill").style.width=(remain/targetSec*100)+"%";
+    if(remain<=10) document.getElementById("timerBarFill").classList.add("low");
+    if(elapsed>=targetSec){
+      document.getElementById("timerNum").classList.add("over");
+      document.getElementById("timerInfo").innerHTML="<strong>制限時間を超えました。</strong><br>手を止めて「降り方を見る」で、構造のどの段（ブロック／節／款）でずれたか確認してください。そのまま探し続けても構いません。";
+    }
+  }
+}
+document.getElementById("timerStartBtn").addEventListener("click", function(){
+  if(timerRunning){ stopTimer(); this.textContent="▶ 再開する"; document.getElementById("foundBtn").disabled=true; document.getElementById("giveupBtn").disabled=true; return; }
+  timerRunning=true; this.textContent="⏸ 一時停止";
+  document.getElementById("foundBtn").disabled=false;
+  document.getElementById("giveupBtn").disabled=false;
+  timerId=setInterval(tick,1000);
+});
+function sShowAnswer(inTime, silent){
+  stopTimer();
+  var it=sCurrent(); var key=sKeyOf(it);
+  if(!silent && !sRevealed[key]){ sRevealed[key]=inTime?"intime":"over"; if(inTime) sInTime++; document.getElementById("searchInTime").textContent=sInTime; }
+  document.getElementById("searchFeedback").classList.add("show");
+  document.getElementById("timerStartBtn").disabled=true;
+  document.getElementById("foundBtn").disabled=true;
+  document.getElementById("giveupBtn").disabled=true;
+  var v=document.getElementById("searchVerdict");
+  v.textContent=inTime?("✓ 制限時間内に構造でたどり着けました — "+fmtTime(elapsed)+" ／ 目標 "+(targetSec>=120?"2分":targetSec+"秒")):("時間 "+fmtTime(elapsed)+" — 目標は "+(targetSec>=120?"2分":targetSec+"秒")+" でした。降り方を確認してください");
+  v.className="verdict "+(inTime?"ok":"ng");
+  var bo=blockObj("h", it.block);
+  document.getElementById("searchFbBody").innerHTML="<strong>構造での考え方：</strong>"+esc(it.why);
+  document.getElementById("searchDetail").innerHTML="<dt>構造に沿った降り方（ブロック → 節 → 款 → 目）</dt><dd>法人税法 → "+esc(bo? bo.name : "")+"（"+esc(it.loc)+"）<br>手順："+esc(it.route)+"</dd><dt>関連する置き場所</dt><dd>"+esc(it.related)+"</dd><dt>委任・要件メモ</dt><dd>"+esc(it.deleg)+"</dd>";
+  document.getElementById("searchLocFoot").innerHTML="たどり着く先（参考）：法人税法 "+esc(it.article)+"「"+esc(it.title)+"」";
+}
+document.getElementById("foundBtn").addEventListener("click", function(){ sShowAnswer(elapsed<=targetSec, false); });
+document.getElementById("giveupBtn").addEventListener("click", function(){ sShowAnswer(false,false); });
+document.getElementById("searchWeakBtn").addEventListener("click", function(){
+  var key=sKeyOf(sCurrent());
+  if(sWeak[key]) delete sWeak[key]; else sWeak[key]=true;
+  document.getElementById("searchWeakCount").textContent=Object.keys(sWeak).length;
+  this.textContent=sWeak[key]?"★ 苦手マーク中（タップで解除）":"☆ 苦手にマーク";
+  this.classList.toggle("on", !!sWeak[key]);
+});
+document.getElementById("searchPrev").addEventListener("click", function(){ if(sIdx>0){ sIdx--; sRender(); } });
+document.getElementById("searchNext").addEventListener("click", function(){
+  if(sIdx>=sOrder.length-1){
+    document.getElementById("searchBody").style.display="none";
+    document.getElementById("searchDone").classList.add("show");
+    document.getElementById("searchDoneText").textContent="全"+sOrder.length+"問中、制限時間内に構造でたどり着けたのは "+sInTime+" 問。苦手マークは "+Object.keys(sWeak).length+" 件です。ずれた段（ブロック／節／款）を意識して、もう一周すると速くなります。";
+  } else { sIdx++; sRender(); }
+});
+var sShuffle=false;
+document.getElementById("searchShuffleBtn").addEventListener("click", function(){
+  sShuffle=!sShuffle; sOrder=sShuffle? shuffle(sItems) : sItems.slice(); sIdx=0;
+  this.textContent="シャッフル "+(sShuffle?"ON":"OFF"); this.classList.toggle("active", sShuffle); sRender();
+});
+function sReset(){ sRevealed={}; sInTime=0; sWeak={}; sIdx=0; sRender(); }
+document.getElementById("searchResetBtn").addEventListener("click", sReset);
+document.getElementById("searchRestart").addEventListener("click", function(){ sOrder=shuffle(sItems); sShuffle=true; document.getElementById("searchShuffleBtn").textContent="シャッフル ON"; document.getElementById("searchShuffleBtn").classList.add("active"); sReset(); });
+
+/* ================================================================
+   MODE 4: 対応表
+   ================================================================ */
+var tableFilter="all", tableQuery="";
+var GROUP_LABEL={s1:"第1節 所得計算", s2:"第2節 税額計算", s3:"第3節 申告・還付"};
+function renderTable(){
+  var list=document.getElementById("tableList"); list.innerHTML="";
+  var count=0;
+  TOPICS.forEach(function(t){
+    if(tableFilter!=="all" && tableFilter!==t.group) return;
+    var hay=t.topic+" "+t.short+" "+t.article+" "+t.title+" "+t.loc+" "+t.related;
+    if(tableQuery && hay.toLowerCase().indexOf(tableQuery.toLowerCase())===-1) return;
+    count++;
+    var btn=document.createElement("button"); btn.type="button"; btn.className="trow";
+    btn.innerHTML="<div class='r1'><span class='topic'>"+esc(t.short)+"</span><span class='art'>"+esc(t.article)+"</span></div>"
+      +"<div class='loc'>"+esc(blockName("h",t.block))+" ｜ "+esc(t.kind)+" ｜ "+esc(t.loc)+"</div>"
+      +"<div class='expand'><div><strong>論点：</strong>"+esc(t.topic)+"</div><div style='margin-top:6px'><strong>構造上の位置づけ：</strong>"+esc(t.why)+"</div><div style='margin-top:6px'><strong>関連条文：</strong>"+esc(t.related)+"</div><div style='margin-top:6px'><strong>委任・要件：</strong>"+esc(t.deleg)+"</div><div style='margin-top:6px'><strong>検索ルート（目標 "+t.target+"秒）：</strong>"+esc(t.route)+"</div></div>";
+    btn.addEventListener("click", function(e){ if(e.target.closest(".expand") && btn.classList.contains("open")) return; btn.classList.toggle("open"); });
+    list.appendChild(btn);
+  });
+  document.getElementById("tableCount").textContent=count;
+  document.getElementById("tableEmpty").style.display=count? "none":"block";
+}
+document.getElementById("tableSearch").addEventListener("input", function(){ tableQuery=this.value.trim(); renderTable(); });
+document.querySelectorAll("#tableFilters .chip").forEach(function(ch){ ch.addEventListener("click", function(){
+  document.querySelectorAll("#tableFilters .chip").forEach(function(x){ x.classList.remove("active"); });
+  ch.classList.add("active"); tableFilter=ch.getAttribute("data-f"); renderTable();
+});});
+
+/* init */
+dRender(); sRender(); renderTable();
+</script>
+</body>
+</html>
