@@ -1579,5 +1579,13 @@ document.querySelectorAll(".mode-btn").forEach(function(b){
 });
 renderScore();
 </script>
+<script>
+/* Service Worker 登録（オフライン対応） */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function() {
+    navigator.serviceWorker.register("sw.js").catch(function() {});
+  });
+}
+</script>
 </body>
 </html>
