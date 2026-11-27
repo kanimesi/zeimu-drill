@@ -126,6 +126,8 @@
   .btn:active:not(:disabled){transform:translateY(1px) scale(.99)}
   .btn.grow{flex:1}
   .read-btn.on{background:var(--grad-accent);color:var(--accent-ink);border-color:transparent;box-shadow:var(--shadow-pop)}
+  .random-btn{display:block;width:100%;margin:0 0 12px;padding:15px 14px;min-height:54px;font-size:15.5px;font-weight:800;letter-spacing:.03em}
+  .random-btn[hidden]{display:none}
   .controls{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;margin-top:14px;align-items:center}
   .controls .btn{width:100%}
   .controls .pos{font-size:13px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -211,6 +213,8 @@
     <span id="modeHint"></span>
   </div>
 
+  <button class="btn primary random-btn" type="button" id="randomBtn">ランダムで1問出す</button>
+
   <div class="card" id="card"></div>
   <div class="empty" id="emptyBox">条件に合う項目がありません。<br>絞り込みの条件を変えてみてください。</div>
 
@@ -251,20 +255,22 @@ function impClass(imp){ if(imp==="A") return "A"; if(imp==="B") return "B"; if(i
 function impBadge(imp){ if(!imp) return ""; return '<span class="imp '+impClass(imp)+'">重要度 '+esc(imp)+'</span>'; }
 
 function buildItems(){
-  var ch = chMap[state.chKey]; if(!ch) return [];
   var kw = state.kw.trim();
+  var targets = state.chKey==="all" ? DATA : (chMap[state.chKey] ? [chMap[state.chKey]] : []);
   var items = [];
-  if(state.mode==="article"){
-    ch.articles.forEach(function(a, i){
-      var topic = ch.topics.filter(function(t){ return t.title===a.topic; })[0];
-      var imp = topic ? (topic.imp||"") : "";
-      items.push({kind:"article", ch:ch, i:i, id:artId(ch.key,i), q:a.q, a:a.a, topicTitle:a.topic, imp:imp});
-    });
-  } else {
-    ch.topics.forEach(function(t, i){
-      items.push({kind:state.mode, ch:ch, i:i, id:topicId(ch.key,i), t:t});
-    });
-  }
+  targets.forEach(function(ch){
+    if(state.mode==="article"){
+      ch.articles.forEach(function(a, i){
+        var topic = ch.topics.filter(function(t){ return t.title===a.topic; })[0];
+        var imp = topic ? (topic.imp||"") : "";
+        items.push({kind:"article", ch:ch, i:i, id:artId(ch.key,i), q:a.q, a:a.a, topicTitle:a.topic, imp:imp});
+      });
+    } else {
+      ch.topics.forEach(function(t, i){
+        items.push({kind:state.mode, ch:ch, i:i, id:topicId(ch.key,i), t:t});
+      });
+    }
+  });
   return items.filter(function(it){
     var imp = it.kind==="article" ? it.imp : (it.t.imp||"");
     if(state.imp!=="all"){
@@ -284,8 +290,8 @@ function buildItems(){
     }
     if(kw){
       var hay;
-      if(it.kind==="article") hay = it.q + "\n" + it.a + "\n" + it.topicTitle + "\n" + ch.title;
-      else hay = it.t.title + "\n" + it.t.sec + "\n" + it.t.question + "\n" + it.t.input + "\n" + it.t.answer + "\n" + ch.title;
+      if(it.kind==="article") hay = it.q + "\n" + it.a + "\n" + it.topicTitle + "\n" + it.ch.title;
+      else hay = it.t.title + "\n" + it.t.sec + "\n" + it.t.question + "\n" + it.t.input + "\n" + it.t.answer + "\n" + it.ch.title;
       if(hay.indexOf(kw)===-1) return false;
     }
     return true;
@@ -316,6 +322,12 @@ function renderSummary(){
 function renderChSelect(){
   var sel = document.getElementById("chSelect");
   sel.innerHTML = "";
+  var totalT = 0, totalA = 0;
+  DATA.forEach(function(c){ totalT += c.topics.length; totalA += c.articles.length; });
+  var allOpt = document.createElement("option");
+  allOpt.value = "all";
+  allOpt.textContent = "全章（全" + DATA.length + "章・論点" + totalT + "・何条" + totalA + "）";
+  sel.appendChild(allOpt);
   chaptersOf(state.law).forEach(function(ch){
     var o = document.createElement("option");
     o.value = ch.key;
@@ -351,7 +363,9 @@ function render(){
   var empty = document.getElementById("emptyBox");
   var controls = document.getElementById("controls");
   document.getElementById("filterHit").textContent = items.length + " 件";
-  document.getElementById("filterSummaryCnt").textContent = LAW_NAME[state.law] + " ・ " + (ch? ch.title : "") + " ・ " + items.length + "件";
+  document.getElementById("filterSummaryCnt").textContent = state.chKey==="all" ? "全章（全" + DATA.length + "章） ・ " + items.length + "件" : LAW_NAME[state.law] + " ・ " + (ch? ch.title : "") + " ・ " + items.length + "件";
+  var rb = document.getElementById("randomBtn");
+  if(rb){ rb.hidden = !items.length; rb.disabled = items.length<=1; }
   document.getElementById("modeHint").textContent = state.mode==="input" ? "読んだらチェック" : state.mode==="topic" ? "答えを開いて自己判定" : "条文番号を思い出してから開く";
   if(!items.length){
     card.style.display="none"; controls.style.display="none"; empty.classList.add("show");
@@ -540,6 +554,17 @@ document.getElementById("filterReset").addEventListener("click", function(){
 });
 document.getElementById("prevBtn").addEventListener("click", function(){ if(state.idx>0){ state.idx--; state.open=false; render(); } });
 document.getElementById("nextBtn").addEventListener("click", function(){ if(state.idx<items.length-1){ state.idx++; state.open=false; render(); } });
+document.getElementById("randomBtn").addEventListener("click", function(){
+  var list = buildItems();
+  if(list.length<=1) return;
+  var cur = state.idx;
+  if(cur<0 || cur>=list.length) cur = 0;
+  var pick = cur;
+  while(pick===cur){ pick = Math.floor(Math.random()*list.length); }
+  state.idx = pick; state.open = false;
+  render();
+  window.scrollTo({top: document.getElementById("card").offsetTop - 12, behavior:"smooth"});
+});
 
 renderChSelect();
 renderStatusChips();
